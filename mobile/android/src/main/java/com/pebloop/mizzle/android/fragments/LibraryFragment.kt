@@ -2,13 +2,12 @@ package com.pebloop.mizzle.android.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.badlogic.gdx.scenes.scene2d.ui.Button
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.fragment.app.Fragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pebloop.mizzle.R
 import com.pebloop.mizzle.android.activities.EditorActivity
@@ -26,9 +25,8 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_library, container, false)
 
-        val newDroppletButton: FloatingActionButton? = view.findViewById(R.id.newDropplet)
-        newDroppletButton?.setOnClickListener {
-            Log.d("LibraryFragment", "New Dropplet button clicked")
+        val newDropletButton: FloatingActionButton? = view.findViewById(R.id.newDropplet)
+        newDropletButton?.setOnClickListener {
             val intent = Intent(activity, EditorActivity::class.java)
             startActivity(intent)
         }

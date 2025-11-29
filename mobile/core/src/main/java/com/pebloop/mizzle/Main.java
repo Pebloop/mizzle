@@ -1,32 +1,42 @@
 package com.pebloop.mizzle;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.pebloop.mizzle.editor.EditorScreen;
+import com.pebloop.mizzle.event_builder.EventBuilderScreen;
+import com.pebloop.mizzle.player.GamePlayerScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Texture image;
+public class Main extends Game {
+
+    private final Launcher mode;
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
+        switch (mode) {
+            case EDITOR:
+                setScreen(new EditorScreen());
+                break;
+            case GAME:
+                setScreen(new GamePlayerScreen());
+                break;
+            case EVENT_BUILDER:
+                setScreen(new EventBuilderScreen());
+                break;
+        }
     }
 
-    @Override
-    public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        batch.begin();
-        batch.draw(image, 140, 210);
-        batch.end();
+    public enum Launcher {
+        EDITOR,
+        GAME,
+        EVENT_BUILDER
     }
 
-    @Override
-    public void dispose() {
-        batch.dispose();
-        image.dispose();
+    public Main(Launcher mode) {
+        this.mode = mode;
     }
+
 }
