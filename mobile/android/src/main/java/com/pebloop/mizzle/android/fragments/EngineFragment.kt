@@ -1,4 +1,4 @@
-package com.pebloop.mizzle.android
+package com.pebloop.mizzle.android.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication
 import com.pebloop.mizzle.Main
+import com.pebloop.mizzle.R
 
 /**
  * A simple [Fragment] subclass.
@@ -15,10 +16,6 @@ import com.pebloop.mizzle.Main
  * create an instance of this fragment.
  */
 class EngineFragment : AndroidFragmentApplication() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

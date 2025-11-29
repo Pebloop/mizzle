@@ -1,4 +1,4 @@
-package com.pebloop.mizzle.android
+package com.pebloop.mizzle.android.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

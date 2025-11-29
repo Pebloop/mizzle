@@ -7,6 +7,7 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 android {
   namespace "com.pebloop.mizzle"
@@ -38,8 +39,8 @@ android {
     versionName "1.0"
   }
   compileOptions {
-    sourceCompatibility "8"
-    targetCompatibility "8"
+    sourceCompatibility "11"
+    targetCompatibility "11"
     coreLibraryDesugaringEnabled true
   }
   buildTypes {
@@ -52,7 +53,11 @@ android {
   kotlin.compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
     buildFeatures {
         viewBinding true
+      compose true
     }
+  kotlinOptions {
+    jvmTarget = '11'
+  }
 
 }
 
@@ -73,10 +78,21 @@ dependencies {
     implementation 'androidx.fragment:fragment:1.8.9'
   implementation 'androidx.activity:activity:1.8.0'
   implementation 'androidx.fragment:fragment:1.8.9'
+  implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+  implementation 'androidx.activity:activity-compose:1.8.0'
+  implementation platform('androidx.compose:compose-bom:2024.09.00')
+  implementation 'androidx.compose.ui:ui'
+  implementation 'androidx.compose.ui:ui-graphics'
+  implementation 'androidx.compose.ui:ui-tooling-preview'
+  implementation 'androidx.compose.material3:material3'
+  androidTestImplementation platform('androidx.compose:compose-bom:2024.09.00')
+  androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
   coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
   implementation "com.badlogicgames.gdx-controllers:gdx-controllers-android:$gdxControllersVersion"
   implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
   implementation project(':core')
+  debugImplementation 'androidx.compose.ui:ui-tooling'
+  debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a"

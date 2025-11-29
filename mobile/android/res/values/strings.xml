@@ -3,4 +3,6 @@
     <string name="app_name">mizzle</string>
     <string name="tab_play">Play</string>
     <string name="tab_library">Library</string>
+    <string name="title_activity_editor">EditorActivity</string>
+    <string name="new_dropplet_description">Create a new Dropplet</string>
 </resources>

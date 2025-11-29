@@ -1,7 +1,6 @@
-package com.pebloop.mizzle.android
+package com.pebloop.mizzle.android.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pebloop.mizzle.R
-import kotlin.random.Random
 
 /**
  * A simple [Fragment] subclass.
@@ -17,13 +15,6 @@ import kotlin.random.Random
  * create an instance of this fragment.
  */
 class App : Fragment(R.layout.fragment_app) {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
