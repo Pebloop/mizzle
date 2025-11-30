@@ -20,9 +20,9 @@ class EventBuilderFragment : AndroidFragmentApplication() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-            super.onCreateView(inflater, container, savedInstanceState)
-            val configuration = AndroidApplicationConfiguration()
-            val gameEngine: View? = initializeForView(Main(Main.Launcher.EVENT_BUILDER), configuration)
-            return gameEngine
+        val configuration = AndroidApplicationConfiguration()
+        configuration.useImmersiveMode = false
+        val gameEngine: View? = initializeForView(Main(Main.Launcher.EVENT_BUILDER), configuration)
+        return gameEngine
     }
 }

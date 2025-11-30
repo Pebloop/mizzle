@@ -20,8 +20,8 @@ class EditorFragment : AndroidFragmentApplication() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-            super.onCreateView(inflater, container, savedInstanceState)
             val configuration = AndroidApplicationConfiguration()
+            configuration.useImmersiveMode = false
             val gameEngine: View? = initializeForView(Main(Main.Launcher.EDITOR), configuration)
             return gameEngine
     }

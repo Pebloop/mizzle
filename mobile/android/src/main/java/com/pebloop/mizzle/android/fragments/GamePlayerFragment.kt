@@ -25,7 +25,6 @@ class GamePlayerFragment : AndroidFragmentApplication() {
     ): View {
         val config = AndroidApplicationConfiguration()
         config.useImmersiveMode = false
-        useImmersiveMode(false)
         return initializeForView(Main(Main.Launcher.GAME), config)
     }
 
