@@ -1,5 +1,6 @@
 package com.pebloop.mizzle.player
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.utils.ScreenUtils
@@ -25,5 +26,6 @@ class GamePlayerScreen: Screen {
     }
 
     override fun dispose() {
+        Gdx.app.debug("test", "dispose")
     }
 }

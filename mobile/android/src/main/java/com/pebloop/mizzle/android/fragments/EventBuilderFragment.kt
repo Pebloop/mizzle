@@ -22,7 +22,7 @@ class EventBuilderFragment : AndroidFragmentApplication() {
     ): View? {
         val configuration = AndroidApplicationConfiguration()
         configuration.useImmersiveMode = false
-        val gameEngine: View? = initializeForView(Main(Main.Launcher.EVENT_BUILDER), configuration)
+        val gameEngine: View? = initializeForView(Main(Main.Launcher.EVENT_BUILDER, null, null), configuration)
         return gameEngine
     }
 }

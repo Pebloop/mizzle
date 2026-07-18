@@ -1,10 +1,10 @@
 package com.pebloop.mizzle;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.Gdx;
+import com.pebloop.mizzle.data.DropletData;
+import com.pebloop.mizzle.editor.EditorActionsExtern;
 import com.pebloop.mizzle.editor.EditorScreen;
 import com.pebloop.mizzle.event_builder.EventBuilderScreen;
 import com.pebloop.mizzle.player.GamePlayerScreen;
@@ -13,12 +13,15 @@ import com.pebloop.mizzle.player.GamePlayerScreen;
 public class Main extends Game {
 
     private final Launcher mode;
+    DropletData droplet = null;
+    EditorActionsExtern actionsExtern = null;
 
     @Override
     public void create() {
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
         switch (mode) {
             case EDITOR:
-                setScreen(new EditorScreen());
+                setScreen(new EditorScreen(droplet, actionsExtern));
                 break;
             case GAME:
                 setScreen(new GamePlayerScreen());
@@ -35,8 +38,10 @@ public class Main extends Game {
         EVENT_BUILDER
     }
 
-    public Main(Launcher mode) {
+    public Main(Launcher mode, DropletData droplet, EditorActionsExtern actions) {
         this.mode = mode;
+        this.droplet = droplet;
+        this.actionsExtern = actions;
     }
 
 }

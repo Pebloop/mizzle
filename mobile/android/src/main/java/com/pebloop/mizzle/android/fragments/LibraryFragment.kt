@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pebloop.mizzle.R
 import com.pebloop.mizzle.android.activities.EditorActivity
+import com.pebloop.mizzle.data.DropletData
 
 /**
  * A simple [Fragment] subclass.
@@ -28,6 +29,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         val newDropletButton: FloatingActionButton? = view.findViewById(R.id.newDropplet)
         newDropletButton?.setOnClickListener {
             val intent = Intent(activity, EditorActivity::class.java)
+            intent.putExtra("droplet", DropletData())
             startActivity(intent)
         }
 

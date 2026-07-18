@@ -23,6 +23,7 @@ xmlns:tools="http://schemas.android.com/tools">
         </intent-filter>
     </activity>
     <activity android:name=".android.activities.EditorActivity"/>
+    <activity android:name=".android.activities.EditorEntityEditorActivity"/>
 </application>
 
 </manifest>

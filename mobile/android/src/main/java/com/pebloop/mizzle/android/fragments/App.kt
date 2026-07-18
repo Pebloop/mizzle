@@ -26,7 +26,7 @@ class App : Fragment(R.layout.fragment_app) {
 
         val bnv: BottomNavigationView? = v?.findViewById(R.id.bottomNavigationView)
 
-        val playFragment = PlayFragment()
+        var playFragment = PlayFragment()
         val libraryFragment = LibraryFragment()
 
         setCurrentFragment(playFragment)

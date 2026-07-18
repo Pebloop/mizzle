@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 buildscript {
   repositories {
@@ -11,7 +12,7 @@ apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 android {
   namespace "com.pebloop.mizzle"
-  compileSdk 35
+  compileSdk 37
   sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
@@ -33,30 +34,30 @@ android {
   }
   defaultConfig {
     applicationId 'com.pebloop.mizzle'
-    minSdkVersion 21
-    targetSdkVersion 35
+    minSdkVersion 33
+    targetSdkVersion 36
     versionCode 1
     versionName "1.0"
   }
   compileOptions {
-    sourceCompatibility "11"
-    targetCompatibility "11"
+    sourceCompatibility "17"
+    targetCompatibility "17"
     coreLibraryDesugaringEnabled true
   }
   buildTypes {
     release {
       minifyEnabled true
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
   }
 
-  kotlin.compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+  kotlin.compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
     buildFeatures {
         viewBinding true
       compose true
     }
   kotlinOptions {
-    jvmTarget = '11'
+    jvmTarget = '17'
   }
 
 }
@@ -69,23 +70,23 @@ repositories {
 configurations { natives }
 
 dependencies {
-  implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+  implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.14.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.11.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
-    implementation 'androidx.fragment:fragment:1.8.9'
-  implementation 'androidx.activity:activity:1.8.0'
-  implementation 'androidx.fragment:fragment:1.8.9'
-  implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-  implementation 'androidx.activity:activity-compose:1.8.0'
-  implementation platform('androidx.compose:compose-bom:2024.09.00')
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
+  implementation 'androidx.activity:activity-ktx:1.13.0'
+  implementation 'androidx.fragment:fragment-ktx:1.8.9'
+  implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.11.0'
+  implementation 'androidx.activity:activity-compose:1.13.0'
+  implementation platform('androidx.compose:compose-bom:2026.06.01')
   implementation 'androidx.compose.ui:ui'
   implementation 'androidx.compose.ui:ui-graphics'
   implementation 'androidx.compose.ui:ui-tooling-preview'
   implementation 'androidx.compose.material3:material3'
-  androidTestImplementation platform('androidx.compose:compose-bom:2024.09.00')
+  androidTestImplementation platform('androidx.compose:compose-bom:2026.06.01')
   androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
   coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
   implementation "com.badlogicgames.gdx-controllers:gdx-controllers-android:$gdxControllersVersion"
