@@ -12,15 +12,19 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 class EditorBottomBar(val skin: EditorSkin, actions: EditorActions): HorizontalGroup() {
 
     val addObjectButton: ImageButton
+    val settingsButton: ImageButton
 
     init {
         this.zIndex = 9999
 
         addObjectButton = ImageButton(skin.newDrawable("plus"))
+        settingsButton = ImageButton(skin.newDrawable("settings"))
+
         this.pad(32f)
         this.bottom()
 
         this.addActor(addObjectButton)
+        this.addActor(settingsButton)
 
         addObjectButton.addListener(object: ChangeListener() {
             override fun changed(
@@ -30,6 +34,15 @@ class EditorBottomBar(val skin: EditorSkin, actions: EditorActions): HorizontalG
                 actions.spawnEntity()
             }
 
+        })
+
+        settingsButton.addListener(object: ChangeListener() {
+            override fun changed(
+                event: ChangeEvent?,
+                actor: Actor?
+            ) {
+                actions.openDropletSettings()
+            }
         })
     }
 

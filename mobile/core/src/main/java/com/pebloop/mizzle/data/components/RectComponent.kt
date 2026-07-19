@@ -43,7 +43,7 @@ class RectComponent: ComponentData {
 
         val oldColor = batch.color.cpy()
         val tempColor = com.badlogic.gdx.graphics.Color()
-        val white = com.pebloop.mizzle.util.Graphics.whitePixel
+        val white = com.pebloop.mizzle.Main.getInstance().whitePixel
 
         // Fill
         com.badlogic.gdx.graphics.Color.argb8888ToColor(tempColor, colorInt)

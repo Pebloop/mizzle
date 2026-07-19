@@ -27,6 +27,8 @@ xmlns:tools="http://schemas.android.com/tools">
     <activity android:name=".android.activities.EditorEntityEditorTransformActivity"/>
     <activity android:name=".android.activities.EditorAddComponentActivity"/>
     <activity android:name=".android.activities.EditorComponentEditorActivity"/>
+    <activity android:name=".android.activities.PlayActivity"/>
+    <activity android:name=".android.activities.DropletSettingsActivity"/>
 </application>
 
 </manifest>

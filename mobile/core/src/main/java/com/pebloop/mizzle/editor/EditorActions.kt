@@ -7,5 +7,8 @@ class EditorActions(
     val selectEntity: Function1<EntityData?, Unit>,
     val getSelectedEntity: Function0<EntityData?>,
     val openEntityEditor: Function2<EntityData, EditorActions, Unit>,
-    val updateEntity: Function1<EntityData, Unit>
+    val updateEntity: Function1<EntityData, Unit>,
+    val exitEditor: Function0<Unit>,
+    val upload: Function0<Unit>,
+    val openDropletSettings: Function0<Unit>
 )

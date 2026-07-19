@@ -20,6 +20,9 @@ class EditorSkin: Skin() {
         this.add("black", Texture(pixmap))
         this.add("plus", Texture(Gdx.files.internal("add_button.png")))
         this.add("edit", Texture(Gdx.files.internal("edit_button.png")))
+        this.add("back", Texture(Gdx.files.internal("back_button.png")))
+        this.add("upload", Texture(Gdx.files.internal("upload_button.png")))
+        this.add("settings", Texture(Gdx.files.internal("settings_button.png")))
         this.add("font", BitmapFont(Gdx.files.internal("roses.fnt"), Gdx.files.internal("roses.png"), false))
 
         val style: Label.LabelStyle = Label.LabelStyle()

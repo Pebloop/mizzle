@@ -6,7 +6,10 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.ScreenUtils
 import com.pebloop.mizzle.data.DropletData
 import com.pebloop.mizzle.data.EntityData
@@ -21,10 +24,12 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
     var entities: Array<EditorEntityInstance> = arrayOf()
     val camera: OrthographicCamera = OrthographicCamera()
     val selectedName: Label
+    val closeButton: ImageButton
+    val uploadButton: ImageButton
 
 
     init {
-        actions = EditorActions(::spawnEntity, ::selectEntity, ::requestSelectedEntity, externAction.openEntityEditor, ::updateEntity)
+        actions = EditorActions(::spawnEntity, ::selectEntity, ::requestSelectedEntity, externAction.openEntityEditor, ::updateEntity, externAction.exitEditor, externAction.upload, { externAction.openDropletSettings(droplet) })
         bottomBar = EditorBottomBar(skin, actions)
         sideBar = EditorSideBar(skin, actions)
         stage.addActor(bottomBar)
@@ -35,6 +40,32 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
         selectedName.setPosition(10f, 150f)
         selectedName.setFontScale(0.7f)
         stage.addActor(selectedName)
+
+        closeButton = ImageButton(skin.newDrawable("back"))
+        val closeWidth = closeButton.width * 1.5f
+        val closeHeight = closeButton.height * 1.5f
+        closeButton.setSize(closeWidth, closeHeight)
+        closeButton.imageCell.size(closeWidth, closeHeight)
+        closeButton.setPosition(30f, Gdx.graphics.height - 30f - closeHeight)
+        closeButton.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                actions.exitEditor()
+            }
+        })
+        stage.addActor(closeButton)
+
+        uploadButton = ImageButton(skin.newDrawable("upload"))
+        val uploadWidth = uploadButton.width * 1.5f
+        val uploadHeight = uploadButton.height * 1.5f
+        uploadButton.setSize(uploadWidth, uploadHeight)
+        uploadButton.imageCell.size(uploadWidth, uploadHeight)
+        uploadButton.setPosition(Gdx.graphics.width - 30f - uploadWidth, Gdx.graphics.height - 30f - uploadHeight)
+        uploadButton.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                actions.upload()
+            }
+        })
+        stage.addActor(uploadButton)
 
 
         displayEntities()
@@ -99,6 +130,9 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
     }
 
     override fun render(delta: Float) {
+        if (Gdx.input.inputProcessor != stage) {
+            Gdx.input.inputProcessor = stage
+        }
         ScreenUtils.clear(Color.SKY)
         stage.act(Gdx.graphics.getDeltaTime())
         stage.draw()
@@ -106,6 +140,8 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
 
     override fun resize(width: Int, height: Int) {
         stage.viewport.update(width, height, true)
+        closeButton.setPosition(30f, height - 30f - closeButton.height)
+        uploadButton.setPosition(width - 30f - uploadButton.width, height - 30f - uploadButton.height)
     }
 
     override fun pause() {
@@ -113,7 +149,10 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
     }
 
     override fun resume() {
-
+        Gdx.app.postRunnable {
+            Gdx.input.inputProcessor = stage
+            stage.viewport.update(Gdx.graphics.width, Gdx.graphics.height, true)
+        }
     }
 
     override fun hide() {

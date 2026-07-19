@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.pebloop.mizzle.data.ComponentData
 import com.pebloop.mizzle.data.components.data.DataComponent
-import com.pebloop.mizzle.util.Graphics
 
 class CircleComponent : ComponentData {
     override fun getId(): String {
@@ -44,7 +43,7 @@ class CircleComponent : ComponentData {
 
         val oldColor = batch.color.cpy()
         val tempColor = com.badlogic.gdx.graphics.Color()
-        val circleTexture = Graphics.circle
+        val circleTexture = com.pebloop.mizzle.Main.getInstance().circle
 
         // Draw outline if needed
         if (outlineWidth > 0) {

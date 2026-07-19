@@ -5,16 +5,16 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 
 object Graphics {
-    val whitePixel: Texture by lazy {
+    fun createWhitePixelTexture(): Texture {
         val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
         pixmap.setColor(Color.WHITE)
         pixmap.fill()
         val texture = Texture(pixmap)
         pixmap.dispose()
-        texture
+        return texture
     }
 
-    val circle: Texture by lazy {
+    fun createCircleTexture(): Texture {
         val size = 256
         val pixmap = Pixmap(size, size, Pixmap.Format.RGBA8888)
         pixmap.setColor(Color.WHITE)
@@ -22,6 +22,6 @@ object Graphics {
         val texture = Texture(pixmap)
         texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
         pixmap.dispose()
-        texture
+        return texture
     }
 }
