@@ -6,7 +6,9 @@ object ComponentDisplays {
         IntDisplay(),
         ColorDisplay(),
         FloatDisplay(),
-        BooleanDisplay()
+        BooleanDisplay(),
+        EventDisplay(),
+        EventTypeDisplay()
     )
 
     fun getById(id: String): ComponentDisplay<*>? {

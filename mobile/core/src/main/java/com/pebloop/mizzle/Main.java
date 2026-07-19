@@ -5,6 +5,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.pebloop.mizzle.data.DropletData;
+import com.pebloop.mizzle.data.components.Event;
 import com.pebloop.mizzle.editor.EditorActionsExtern;
 import com.pebloop.mizzle.editor.EditorScreen;
 import com.pebloop.mizzle.event_builder.EventBuilderScreen;
@@ -17,6 +18,7 @@ public class Main extends Game {
     private final Launcher mode;
     DropletData droplet = new DropletData();
     EditorActionsExtern actionsExtern = null;
+    Event event = null;
 
     private Texture whitePixel;
     private Texture circle;
@@ -48,7 +50,7 @@ public class Main extends Game {
                 setScreen(new GamePlayerScreen(droplet, actionsExtern));
                 break;
             case EVENT_BUILDER:
-                setScreen(new EventBuilderScreen());
+                setScreen(new EventBuilderScreen(event, actionsExtern));
                 break;
         }
     }
@@ -60,11 +62,16 @@ public class Main extends Game {
     }
 
     public Main(Launcher mode, DropletData droplet, EditorActionsExtern actions) {
+        this(mode, droplet, actions, null);
+    }
+
+    public Main(Launcher mode, DropletData droplet, EditorActionsExtern actions, Event event) {
         this.mode = mode;
         if (droplet != null) {
             this.droplet = droplet;
         }
         this.actionsExtern = actions;
+        this.event = event;
     }
 
     @Override

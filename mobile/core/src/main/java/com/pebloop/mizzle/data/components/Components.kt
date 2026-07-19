@@ -8,6 +8,7 @@ object Components {
         CircleComponent(),
         RigidBodyComponent(),
         BoxColliderComponent(),
-        CircleColliderComponent()
+        CircleColliderComponent(),
+        EventComponent()
     )
 }
