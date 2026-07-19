@@ -10,17 +10,27 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 class EditorSideBar(val skin: EditorSkin, actions: EditorActions): VerticalGroup() {
 
     val editEntityButton: ImageButton
+    val moveButton: ImageButton
+    val rotateButton: ImageButton
+    val scaleButton: ImageButton
     var disabled: Boolean = true
 
     init {
         this.zIndex = 9999
 
         editEntityButton = ImageButton(skin.newDrawable("edit"))
+        moveButton = ImageButton(skin.newDrawable("move"))
+        rotateButton = ImageButton(skin.newDrawable("rotate"))
+        scaleButton = ImageButton(skin.newDrawable("scale"))
+
         this.pad(32f)
         this.left()
-        this.setPosition(5f,190 + 128f)
+        this.setPosition(5f,190 + (64f * 5))
 
         this.addActor(editEntityButton)
+        this.addActor(moveButton)
+        this.addActor(rotateButton)
+        this.addActor(scaleButton)
 
         editEntityButton.addListener(object: ChangeListener() {
             override fun changed(
@@ -36,11 +46,29 @@ class EditorSideBar(val skin: EditorSkin, actions: EditorActions): VerticalGroup
             }
 
         })
+
+        moveButton.addListener(object: ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                actions.setInteractionMode(EditorScreen.InteractionMode.MOVE)
+            }
+        })
+
+        rotateButton.addListener(object: ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                actions.setInteractionMode(EditorScreen.InteractionMode.ROTATE)
+            }
+        })
+
+        scaleButton.addListener(object: ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                actions.setInteractionMode(EditorScreen.InteractionMode.SCALE)
+            }
+        })
     }
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         if (!disabled) {
-            batch?.draw(skin.get("black", Texture::class.java), 5f, 190f, 128f, 128f)
+            batch?.draw(skin.get("black", Texture::class.java), 5f, 190f, 128f, 64f * 5)
             super.draw(batch, parentAlpha)
         }
     }

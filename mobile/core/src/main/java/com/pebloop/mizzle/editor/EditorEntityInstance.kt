@@ -69,12 +69,29 @@ class EditorEntityInstance(val entity: EntityData, val actions: EditorActions) :
                 val dy = y - height / 2f
                 if (dragged || Vector2(dx, dy).len() > 20) {
                     dragged = true
-                    // Move the actor such that the touch point (center-ish) follows the mouse
-                    // For a simpler drag, we translate x/y to stage coordinates
                     val stagePos = localToStageCoordinates(Vector2(x, y))
-                    entity.transform.position.x = stagePos.x - width / 2f
-                    entity.transform.position.y = stagePos.y - height / 2f
-                    setPosition(entity.transform.position.x, entity.transform.position.y)
+
+                    when (actions.getInteractionMode()) {
+                        EditorScreen.InteractionMode.MOVE -> {
+                            entity.transform.position.x = stagePos.x - width / 2f
+                            entity.transform.position.y = stagePos.y - height / 2f
+                            setPosition(entity.transform.position.x, entity.transform.position.y)
+                        }
+                        EditorScreen.InteractionMode.ROTATE -> {
+                            val center = localToStageCoordinates(Vector2(width / 2f, height / 2f))
+                            val angle = Vector2(stagePos.x - center.x, stagePos.y - center.y).angleDeg()
+                            entity.transform.rotation = angle
+                            rotation = angle
+                        }
+                        EditorScreen.InteractionMode.SCALE -> {
+                            val center = localToStageCoordinates(Vector2(width / 2f, height / 2f))
+                            val dist = Vector2(stagePos.x - center.x, stagePos.y - center.y).len()
+                            val scale = dist / (Vector2(width / 2f, height / 2f).len())
+                            entity.transform.scale.x = scale
+                            entity.transform.scale.y = scale
+                            setScale(scale, scale)
+                        }
+                    }
                 }
             }
         })

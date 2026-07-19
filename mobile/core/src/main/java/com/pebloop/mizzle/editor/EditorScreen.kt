@@ -15,6 +15,8 @@ import com.pebloop.mizzle.data.DropletData
 import com.pebloop.mizzle.data.EntityData
 
 class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExtern): Screen {
+    enum class InteractionMode { MOVE, ROTATE, SCALE }
+
     val stage: Stage = Stage()
     val skin: EditorSkin = EditorSkin()
     val bottomBar: EditorBottomBar
@@ -26,10 +28,22 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
     val selectedName: Label
     val closeButton: ImageButton
     val uploadButton: ImageButton
+    var interactionMode: InteractionMode = InteractionMode.MOVE
 
 
     init {
-        actions = EditorActions(::spawnEntity, ::selectEntity, ::requestSelectedEntity, externAction.openEntityEditor, ::updateEntity, externAction.exitEditor, externAction.upload, { externAction.openDropletSettings(droplet) })
+        actions = EditorActions(
+            ::spawnEntity,
+            ::selectEntity,
+            ::requestSelectedEntity,
+            externAction.openEntityEditor,
+            ::updateEntity,
+            externAction.exitEditor,
+            externAction.upload,
+            { externAction.openDropletSettings(droplet) },
+            { interactionMode },
+            { mode -> interactionMode = mode }
+        )
         bottomBar = EditorBottomBar(skin, actions)
         sideBar = EditorSideBar(skin, actions)
         stage.addActor(bottomBar)
