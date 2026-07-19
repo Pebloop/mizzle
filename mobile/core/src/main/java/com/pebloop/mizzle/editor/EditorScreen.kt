@@ -47,6 +47,15 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
                 Gdx.app.debug("test", newEntity.name)
                 entity.name = newEntity.name
                 selectedName.setText(entity.name)
+                entity.transform = newEntity.transform
+                entity.components = newEntity.components
+
+                for (instance in entities) {
+                    if (instance.entity == entity) {
+                        instance.forceUpdate()
+                    }
+                }
+
             }
         }
     }

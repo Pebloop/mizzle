@@ -14,8 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.pebloop.mizzle.data.EntityData
 
-class EditorEntityInstance(val entity: EntityData, val actions: EditorActions) : Actor(),
-    InputProcessor {
+class EditorEntityInstance(val entity: EntityData, val actions: EditorActions) : Actor() {
 
     var pixmap: Pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
     var yellow: Pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
@@ -31,9 +30,10 @@ class EditorEntityInstance(val entity: EntityData, val actions: EditorActions) :
         yellow.fill()
         yellowTexture = Texture(yellow)
         setPosition(entity.transform.position.x, entity.transform.position.y)
-        setSize(50f, 50f)
+        updateSize()
         setScale(entity.transform.scale.x, entity.transform.scale.y)
         rotation = entity.transform.rotation
+        zIndex = entity.transform.zIndex
         addListener(object : InputListener() {
             override fun touchUp(
                 event: InputEvent?,
@@ -65,14 +65,39 @@ class EditorEntityInstance(val entity: EntityData, val actions: EditorActions) :
             }
 
             override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
-                if (dragged || entity.transform.position.dst(entity.transform.position.x + x,entity.transform.position.y + y) > 60) {
+                val dx = x - width / 2f
+                val dy = y - height / 2f
+                if (dragged || Vector2(dx, dy).len() > 20) {
                     dragged = true
-                    entity.transform.position.x += x
-                    entity.transform.position.y += y
+                    // Move the actor such that the touch point (center-ish) follows the mouse
+                    // For a simpler drag, we translate x/y to stage coordinates
+                    val stagePos = localToStageCoordinates(Vector2(x, y))
+                    entity.transform.position.x = stagePos.x - width / 2f
+                    entity.transform.position.y = stagePos.y - height / 2f
                     setPosition(entity.transform.position.x, entity.transform.position.y)
                 }
             }
         })
+    }
+
+    fun forceUpdate() {
+        setPosition(entity.transform.position.x, entity.transform.position.y)
+        updateSize()
+        setScale(entity.transform.scale.x, entity.transform.scale.y)
+        rotation = entity.transform.rotation
+        zIndex = entity.transform.zIndex
+    }
+
+    private fun updateSize() {
+        var maxWidth = 0f
+        var maxHeight = 0f
+        for (component in entity.components) {
+            val bounds = component.getBounds()
+            if (bounds.x > maxWidth) maxWidth = bounds.x
+            if (bounds.y > maxHeight) maxHeight = bounds.y
+        }
+        setSize(maxWidth, maxHeight)
+        setOrigin(maxWidth / 2f, maxHeight / 2f)
     }
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
@@ -80,84 +105,35 @@ class EditorEntityInstance(val entity: EntityData, val actions: EditorActions) :
         if (actions.getSelectedEntity() == entity) {
             batch?.draw(
                 yellowTexture,
-                entity.transform.position.x - 2,
-                entity.transform.position.y - 2,
-                50f + 4,
-                50f + 4
+                getX() - 2,
+                getY() - 2,
+                getOriginX() + 2,
+                getOriginY() + 2,
+                getWidth() + 4,
+                getHeight() + 4,
+                getScaleX(),
+                getScaleY(),
+                getRotation(),
+                0,
+                0,
+                1,
+                1,
+                false,
+                false
             )
         }
-        batch?.draw(texture, entity.transform.position.x, entity.transform.position.y, 50f, 50f)
-    }
-
-    override fun keyDown(keycode: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun keyUp(keycode: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun keyTyped(character: Char): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun touchDown(
-        screenX: Int,
-        screenY: Int,
-        pointer: Int,
-        button: Int
-    ): Boolean {
-        Gdx.app.debug("test", "tse2t")
-        return true
-    }
-
-    override fun touchUp(
-        screenX: Int,
-        screenY: Int,
-        pointer: Int,
-        button: Int
-    ): Boolean {
-        Gdx.app.debug("test", "tset")
-        if (screenX > entity.transform.position.x
-            && screenX < entity.transform.position.x + 50
-            && screenY > entity.transform.position.y
-            && screenY < entity.transform.position.y + 50
-        ) {
-            if (actions.getSelectedEntity() == entity) {
-                actions.selectEntity(null)
-            } else {
-
-                actions.selectEntity(entity)
-            }
-            return true
+        for (component in entity.components) {
+            component.draw(
+                batch,
+                parentAlpha,
+                getX(),
+                getY(),
+                getOriginX(),
+                getOriginY(),
+                getScaleX(),
+                getScaleY(),
+                getRotation()
+            )
         }
-        return false
     }
-
-    override fun touchCancelled(
-        screenX: Int,
-        screenY: Int,
-        pointer: Int,
-        button: Int
-    ): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun touchDragged(
-        screenX: Int,
-        screenY: Int,
-        pointer: Int
-    ): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun scrolled(amountX: Float, amountY: Float): Boolean {
-        TODO("Not yet implemented")
-    }
-
-
 }

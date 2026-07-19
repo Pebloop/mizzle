@@ -24,6 +24,9 @@ xmlns:tools="http://schemas.android.com/tools">
     </activity>
     <activity android:name=".android.activities.EditorActivity"/>
     <activity android:name=".android.activities.EditorEntityEditorActivity"/>
+    <activity android:name=".android.activities.EditorEntityEditorTransformActivity"/>
+    <activity android:name=".android.activities.EditorAddComponentActivity"/>
+    <activity android:name=".android.activities.EditorComponentEditorActivity"/>
 </application>
 
 </manifest>

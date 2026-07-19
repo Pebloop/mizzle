@@ -4,19 +4,20 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.pebloop.mizzle.data.ComponentData
 import com.pebloop.mizzle.data.components.data.DataComponent
+import com.pebloop.mizzle.util.Graphics
 
-class RectComponent: ComponentData {
+class CircleComponent : ComponentData {
     override fun getId(): String {
-        return "RECT"
+        return "CIRCLE"
     }
 
     override fun getDisplayName(): String {
-        return "Rectangle"
+        return "Circle"
     }
 
     override fun getDataList(): Map<String, DataComponent<*>> {
         return mapOf(
-            Pair("size", DataComponent<Vector2>(Vector2(50f,50f), "VECTOR2")),
+            Pair("radius", DataComponent<Float>(25f, "FLOAT")),
             Pair("color", DataComponent<Int>(0xffffffff.toInt(), "COLOR")),
             Pair("outline color", DataComponent<Int>(0xffffffff.toInt(), "COLOR")),
             Pair("outline width", DataComponent<Int>(0, "INT"))
@@ -36,43 +37,39 @@ class RectComponent: ComponentData {
         datas: Map<String, DataComponent<*>>
     ) {
         if (batch == null) return
-        val size = datas["size"]?.data as? Vector2 ?: Vector2(0f, 0f)
+        val radius = datas["radius"]?.data as? Float ?: 0f
         val colorInt = datas["color"]?.data as? Int ?: 0xffffffff.toInt()
         val outlineColorInt = datas["outline color"]?.data as? Int ?: 0xffffffff.toInt()
         val outlineWidth = datas["outline width"]?.data as? Int ?: 0
 
         val oldColor = batch.color.cpy()
         val tempColor = com.badlogic.gdx.graphics.Color()
-        val white = com.pebloop.mizzle.util.Graphics.whitePixel
+        val circleTexture = Graphics.circle
+
+        // Draw outline if needed
+        if (outlineWidth > 0) {
+            com.badlogic.gdx.graphics.Color.argb8888ToColor(tempColor, outlineColorInt)
+            tempColor.a *= parentAlpha
+            batch.color = tempColor
+            val totalRadius = radius + outlineWidth
+            val diameter = totalRadius * 2
+            // Center the larger circle relative to the original radius
+            val offset = outlineWidth.toFloat()
+            batch.draw(circleTexture, x - offset, y - offset, originX + offset, originY + offset, diameter, diameter, scaleX, scaleY, rotation, 0, 0, circleTexture.width, circleTexture.height, false, false)
+        }
 
         // Fill
         com.badlogic.gdx.graphics.Color.argb8888ToColor(tempColor, colorInt)
         tempColor.a *= parentAlpha
         batch.color = tempColor
-        batch.draw(white, x, y, originX, originY, size.x, size.y, scaleX, scaleY, rotation, 0, 0, 1, 1, false, false)
-
-        if (outlineWidth > 0) {
-            com.badlogic.gdx.graphics.Color.argb8888ToColor(tempColor, outlineColorInt)
-            tempColor.a *= parentAlpha
-            batch.color = tempColor
-            val fOutlineWidth = outlineWidth.toFloat()
-
-            // Bottom
-            batch.draw(white, x, y, originX, originY, size.x, fOutlineWidth, scaleX, scaleY, rotation, 0, 0, 1, 1, false, false)
-            // Top
-            val topY = y + size.y - fOutlineWidth
-            batch.draw(white, x, topY, originX, originY - (size.y - fOutlineWidth), size.x, fOutlineWidth, scaleX, scaleY, rotation, 0, 0, 1, 1, false, false)
-            // Left
-            batch.draw(white, x, y, originX, originY, fOutlineWidth, size.y, scaleX, scaleY, rotation, 0, 0, 1, 1, false, false)
-            // Right
-            val rightX = x + size.x - fOutlineWidth
-            batch.draw(white, rightX, y, originX - (size.x - fOutlineWidth), originY, fOutlineWidth, size.y, scaleX, scaleY, rotation, 0, 0, 1, 1, false, false)
-        }
+        val diameter = radius * 2
+        batch.draw(circleTexture, x, y, originX, originY, diameter, diameter, scaleX, scaleY, rotation, 0, 0, circleTexture.width, circleTexture.height, false, false)
 
         batch.color = oldColor
     }
 
     override fun getBounds(datas: Map<String, DataComponent<*>>): Vector2 {
-        return datas["size"]?.data as? Vector2 ?: Vector2(0f, 0f)
+        val radius = datas["radius"]?.data as? Float ?: 0f
+        return Vector2(radius * 2, radius * 2)
     }
 }

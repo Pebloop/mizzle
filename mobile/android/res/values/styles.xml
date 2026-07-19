@@ -1,5 +1,5 @@
 <resources>
-    <style name="GdxTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="GdxTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowFullscreen">true</item>
         <item name="android:colorBackground">@color/background</item>
     </style>
