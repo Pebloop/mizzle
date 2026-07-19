@@ -6,6 +6,7 @@ object ComponentDisplays {
         IntDisplay(),
         ColorDisplay(),
         FloatDisplay(),
+        BooleanDisplay()
     )
 
     fun getById(id: String): ComponentDisplay<*>? {

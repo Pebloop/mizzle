@@ -120,14 +120,12 @@ class EditorEntityEditorActivity : AppCompatActivity(), AndroidFragmentApplicati
 
         windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
 
-        val idText: TextView = findViewById(R.id.entity_id_text)
         val nameTextInput: TextInputEditText = findViewById(R.id.entity_name_input)
         val closeButton: ImageButton = findViewById(R.id.entity_editor_close)
         val transformButton: Button = findViewById(R.id.entity_editor_transform_button)
         val componentsContainer: LinearLayout = findViewById(R.id.entity_components_container)
         val addComponentButton: ImageButton = findViewById(R.id.entity_add_component)
 
-        idText.text = "id: " + entity!!.id.toString()
         nameTextInput.setText(entity!!.name)
         nameTextInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {

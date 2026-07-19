@@ -35,18 +35,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/entity_id_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:paddingLeft="10dp"
-                android:paddingTop="10dp"
-                android:paddingRight="10dp"
-                android:paddingBottom="10dp"
-                android:text="id: 0"
-                android:textAlignment="gravity" />
         </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout

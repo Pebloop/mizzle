@@ -47,9 +47,13 @@ class GamePlayerFragment : AndroidFragmentApplication() {
             }, {
                 val success = DropletPersistence.saveDroplet(requireContext(), droplet)
                 if (success) {
-                    Toast.makeText(context, "Droplet saved successfully!", Toast.LENGTH_SHORT).show()
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, "Droplet saved successfully!", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
-                    Toast.makeText(context, "Failed to save droplet.", Toast.LENGTH_SHORT).show()
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, "Failed to save droplet.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }, {}, showUpload)
         }

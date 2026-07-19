@@ -5,6 +5,9 @@ import com.pebloop.mizzle.data.ComponentData
 object Components {
     val list: Array<ComponentData> = arrayOf(
         RectComponent(),
-        CircleComponent()
+        CircleComponent(),
+        RigidBodyComponent(),
+        BoxColliderComponent(),
+        CircleColliderComponent()
     )
 }
