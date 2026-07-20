@@ -2,7 +2,7 @@ package com.pebloop.mizzle.android.activities
 
 import android.os.Bundle
 import android.widget.ImageButton
-import android.widget.Switch
+import com.google.android.material.materialswitch.MaterialSwitch
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
@@ -34,7 +34,7 @@ class DropletSettingsActivity : AppCompatActivity(), AndroidFragmentApplication.
         windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
 
         val nameInput: TextInputEditText = findViewById(R.id.droplet_name_input)
-        val publicSwitch: Switch = findViewById(R.id.droplet_is_draft)
+        val publicSwitch: MaterialSwitch = findViewById(R.id.droplet_is_draft)
         val closeButton: ImageButton = findViewById(R.id.droplet_settings_close)
 
         droplet?.let {

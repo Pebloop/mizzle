@@ -9,7 +9,10 @@ object ComponentDisplays {
         BooleanDisplay(),
         EventDisplay(),
         EventTypeDisplay(),
-        StringDisplay()
+        StringDisplay(),
+        TextureDisplay(),
+        SpriteAnimationsDisplay(),
+        TimelineAnimationsDisplay()
     )
 
     fun getById(id: String): ComponentDisplay<*>? {

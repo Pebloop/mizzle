@@ -20,15 +20,21 @@ import com.pebloop.mizzle.R
 import com.pebloop.mizzle.android.components.displays.ComponentDisplay
 import com.pebloop.mizzle.android.components.displays.ComponentDisplays
 import com.pebloop.mizzle.data.Component
+import com.pebloop.mizzle.data.components.SpriteAnimationData
+import com.pebloop.mizzle.data.components.TimelineAnimationData
 import com.pebloop.mizzle.data.components.Event
 import com.pebloop.mizzle.data.components.data.DataComponent
+import com.pebloop.mizzle.data.EntityData
 
 
 class EditorComponentEditorActivity : AppCompatActivity(), AndroidFragmentApplication.Callbacks {
 
     private var component: Component? = null
+    private var entity: EntityData? = null
     private var index: Int = -1
     private var currentEventKey: String? = null
+    private var currentAnimationsKey: String? = null
+    private var currentTimelineAnimationsKey: String? = null
 
     private val eventBuilderLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK) {
@@ -41,11 +47,50 @@ class EditorComponentEditorActivity : AppCompatActivity(), AndroidFragmentApplic
         }
     }
 
+    private val animationsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK) {
+            @Suppress("UNCHECKED_CAST")
+            val returnedAnimations = result.data?.getSerializableExtra("animations", ArrayList::class.java) as? ArrayList<SpriteAnimationData>
+            if (returnedAnimations != null && currentAnimationsKey != null) {
+                @Suppress("UNCHECKED_CAST")
+                (component!!.datas[currentAnimationsKey!!] as? DataComponent<ArrayList<SpriteAnimationData>>)?.data = returnedAnimations
+                refreshDisplays()
+            }
+        }
+    }
+
+    private val timelineAnimationsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK) {
+            @Suppress("UNCHECKED_CAST")
+            val returnedAnimations = result.data?.getSerializableExtra("animations", ArrayList::class.java) as? ArrayList<TimelineAnimationData>
+            if (returnedAnimations != null && currentTimelineAnimationsKey != null) {
+                @Suppress("UNCHECKED_CAST")
+                (component!!.datas[currentTimelineAnimationsKey!!] as? DataComponent<ArrayList<TimelineAnimationData>>)?.data = returnedAnimations
+                refreshDisplays()
+            }
+        }
+    }
+
     fun launchEventBuilder(key: String, event: Event) {
         currentEventKey = key
         val intent = Intent(this, EventBuilderActivity::class.java)
         intent.putExtra("event", event)
         eventBuilderLauncher.launch(intent)
+    }
+
+    fun launchAnimationListEditor(key: String, animations: ArrayList<SpriteAnimationData>) {
+        currentAnimationsKey = key
+        val intent = Intent(this, EditorAnimationListActivity::class.java)
+        intent.putExtra("animations", animations)
+        animationsLauncher.launch(intent)
+    }
+
+    fun launchTimelineAnimationEditor(key: String, animations: ArrayList<TimelineAnimationData>) {
+        currentTimelineAnimationsKey = key
+        val intent = Intent(this, EditorTimelineAnimationListActivity::class.java)
+        intent.putExtra("animations", animations)
+        intent.putExtra("entity", entity)
+        timelineAnimationsLauncher.launch(intent)
     }
 
     private fun refreshDisplays() {
@@ -66,8 +111,14 @@ class EditorComponentEditorActivity : AppCompatActivity(), AndroidFragmentApplic
         enableEdgeToEdge()
         setContentView(R.layout.activity_component_editor)
 
-        component = intent.getSerializableExtra("component", Component::class.java)!!
-        index = intent.getIntExtra("index", -1)
+        component = savedInstanceState?.getSerializable("component", Component::class.java)
+            ?: intent.getSerializableExtra("component", Component::class.java)
+        entity = savedInstanceState?.getSerializable("entity", EntityData::class.java)
+            ?: intent.getSerializableExtra("entity", EntityData::class.java)
+        index = savedInstanceState?.getInt("index", -1) ?: intent.getIntExtra("index", -1)
+        currentEventKey = savedInstanceState?.getString("currentEventKey")
+        currentAnimationsKey = savedInstanceState?.getString("currentAnimationsKey")
+        currentTimelineAnimationsKey = savedInstanceState?.getString("currentTimelineAnimationsKey")
 
         val windowInsetsController =
             WindowCompat.getInsetsController(window, window.decorView)
@@ -96,6 +147,16 @@ class EditorComponentEditorActivity : AppCompatActivity(), AndroidFragmentApplic
         }
 
         refreshDisplays()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable("component", component)
+        outState.putSerializable("entity", entity)
+        outState.putInt("index", index)
+        outState.putString("currentEventKey", currentEventKey)
+        outState.putString("currentAnimationsKey", currentAnimationsKey)
+        outState.putString("currentTimelineAnimationsKey", currentTimelineAnimationsKey)
     }
 
     private fun saveAndExit(component: Component, index: Int) {

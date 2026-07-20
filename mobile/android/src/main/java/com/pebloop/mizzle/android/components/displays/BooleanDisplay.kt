@@ -3,7 +3,7 @@ package com.pebloop.mizzle.android.components.displays
 import android.content.Context
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.Switch
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.pebloop.mizzle.data.components.data.DataComponent
 
 class BooleanDisplay : ComponentDisplay<Boolean> {
@@ -16,7 +16,7 @@ class BooleanDisplay : ComponentDisplay<Boolean> {
         data: Map.Entry<String, DataComponent<Boolean>>
     ): View {
         val linear = LinearLayout(context)
-        val switch = Switch(context)
+        val switch = MaterialSwitch(context)
 
         linear.orientation = LinearLayout.VERTICAL
         linear.layoutParams = LinearLayout.LayoutParams(
@@ -24,6 +24,9 @@ class BooleanDisplay : ComponentDisplay<Boolean> {
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
 
+        switch.showText = false
+        switch.textOn = ""
+        switch.textOff = ""
         switch.text = data.key
         switch.isChecked = data.value.data
         switch.setOnCheckedChangeListener { _, isChecked ->

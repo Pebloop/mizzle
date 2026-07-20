@@ -5,21 +5,23 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
-import com.badlogic.gdx.math.Vector2
 import com.google.android.material.textfield.TextInputEditText
 import com.pebloop.mizzle.data.components.data.DataComponent
+import com.pebloop.mizzle.data.util.SerializableVector2
 
-class Vector2Display: ComponentDisplay<Vector2> {
+class Vector2Display: ComponentDisplay<SerializableVector2> {
     override fun getId(): String {
         return "VECTOR2"
     }
 
-    override fun getDisplay(context: Context, data: Map.Entry<String, DataComponent<Vector2>>): View {
+    override fun getDisplay(context: Context, data: Map.Entry<String, DataComponent<SerializableVector2>>): View {
         val linear = LinearLayout(context)
         val label = TextView(context)
         val horizontal = LinearLayout(context)
         val inputX = TextInputEditText(context)
         val inputY = TextInputEditText(context)
+
+        val vector = data.value.data as? SerializableVector2 ?: SerializableVector2(0f, 0f)
 
         label.text = data.key
         linear.orientation = LinearLayout.VERTICAL
@@ -34,18 +36,18 @@ class Vector2Display: ComponentDisplay<Vector2> {
 
         inputX.hint = "x"
         inputY.hint = "y"
-        inputX.setText(data.value.data.x.toString())
-        inputY.setText(data.value.data.y.toString())
+        inputX.setText(vector.x.toString())
+        inputY.setText(vector.y.toString())
         inputX.addTextChangedListener { text ->
             val x = text.toString().toFloatOrNull()
             if (x != null) {
-                data.value.data.x = x
+                (data.value.data as? SerializableVector2)?.x = x
             }
         }
         inputY.addTextChangedListener { text ->
             val y = text.toString().toFloatOrNull()
             if (y != null) {
-                data.value.data.y = y
+                (data.value.data as? SerializableVector2)?.y = y
             }
         }
 

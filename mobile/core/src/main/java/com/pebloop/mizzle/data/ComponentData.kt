@@ -26,5 +26,7 @@ interface ComponentData: Serializable {
         datas: Map<String, DataComponent<*>>
     )
 
+    fun update(delta: Float, entity: EntityData, datas: Map<String, DataComponent<*>>) {}
+
     fun getBounds(datas: Map<String, DataComponent<*>>): Vector2
 }

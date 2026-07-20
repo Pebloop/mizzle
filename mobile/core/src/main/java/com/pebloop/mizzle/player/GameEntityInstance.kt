@@ -26,6 +26,11 @@ class GameEntityInstance(val entity: EntityData) : Actor() {
         setOrigin(maxWidth / 2f, maxHeight / 2f)
     }
 
+    override fun act(delta: Float) {
+        super.act(delta)
+        entity.components.forEach { it.update(delta, entity) }
+    }
+
     override fun draw(batch: Batch?, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
         for (component in entity.components) {

@@ -6,15 +6,15 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.pebloop.mizzle.android.activities.EditorComponentEditorActivity
-import com.pebloop.mizzle.data.components.AnimationData
+import com.pebloop.mizzle.data.components.SpriteAnimationData
 import com.pebloop.mizzle.data.components.data.DataComponent
 
-class AnimationsDisplay : ComponentDisplay<ArrayList<AnimationData>> {
+class SpriteAnimationsDisplay : ComponentDisplay<ArrayList<SpriteAnimationData>> {
     override fun getId(): String = "ANIMATIONS"
 
     override fun getDisplay(
         context: Context,
-        data: Map.Entry<String, DataComponent<ArrayList<AnimationData>>>
+        data: Map.Entry<String, DataComponent<ArrayList<SpriteAnimationData>>>
     ): View {
         val linear = LinearLayout(context)
         val label = TextView(context)

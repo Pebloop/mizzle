@@ -32,10 +32,9 @@ class TimelineAnimationsDisplay : ComponentDisplay<ArrayList<TimelineAnimationDa
 
         button.text = "Edit Timeline Animations"
         button.setOnClickListener {
-            // Future implementation for timeline editor
-            // if (context is EditorComponentEditorActivity) {
-            //    context.launchTimelineAnimationEditor(data.key, data.value.data)
-            // }
+             if (context is EditorComponentEditorActivity) {
+                context.launchTimelineAnimationEditor(data.key, data.value.data)
+             }
         }
 
         linear.addView(label)

@@ -15,6 +15,7 @@ import com.pebloop.mizzle.Main
 import com.pebloop.mizzle.R
 import com.pebloop.mizzle.android.activities.PlayActivity
 import com.pebloop.mizzle.android.util.DropletPersistence
+import com.pebloop.mizzle.android.util.TextureLoader
 import com.pebloop.mizzle.data.DropletData
 import com.pebloop.mizzle.editor.EditorActionsExtern
 
@@ -55,11 +56,13 @@ class GamePlayerFragment : AndroidFragmentApplication() {
                         Toast.makeText(context, "Failed to save droplet.", Toast.LENGTH_SHORT).show()
                     }
                 }
-            }, {}, showUpload)
+            }, {}, {}, showUpload)
         }
 
         engine = Main(Main.Launcher.GAME, droplet, actions)
-        return initializeForView(engine, config)
+        val view = initializeForView(engine, config)
+        TextureLoader.loadDropletTextures(requireContext(), droplet, engine)
+        return view
     }
 
     override fun onDestroyView() {

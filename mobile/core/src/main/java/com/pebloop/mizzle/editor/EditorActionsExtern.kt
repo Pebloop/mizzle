@@ -8,6 +8,7 @@ class EditorActionsExtern(
     val exitEditor: Function0<Unit>,
     val upload: Function0<Unit>,
     val openDropletSettings: Function1<DropletData, Unit>,
+    val openResources: Function1<DropletData, Unit>,
     val showUpload: Boolean = true
 ) {
 }

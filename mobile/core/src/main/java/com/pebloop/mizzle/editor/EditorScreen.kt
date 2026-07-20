@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.ScreenUtils
 import com.pebloop.mizzle.data.DropletData
 import com.pebloop.mizzle.data.EntityData
+import com.pebloop.mizzle.data.util.SerializableVector2
 
 class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExtern): Screen {
     enum class InteractionMode { MOVE, ROTATE, SCALE }
@@ -40,7 +41,9 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
             ::updateEntity,
             externAction.exitEditor,
             externAction.upload,
+            ::deleteEntity,
             { externAction.openDropletSettings(droplet) },
+            { externAction.openResources(droplet) },
             { interactionMode },
             { mode -> interactionMode = mode }
         )
@@ -120,9 +123,21 @@ class EditorScreen(val droplet: DropletData, val externAction: EditorActionsExte
         }
     }
 
+    fun deleteEntity(entity: EntityData) {
+        droplet.entities = droplet.entities.filter { it.id != entity.id }.toTypedArray()
+        val instance = entities.find { it.entity.id == entity.id }
+        if (instance != null) {
+            instance.remove()
+            entities = entities.filter { it.entity.id != entity.id }.toTypedArray()
+        }
+        if (selectedEntity?.id == entity.id) {
+            selectEntity(null)
+        }
+    }
+
     fun spawnEntity() {
         var entity = droplet.addEntity()
-        entity.transform.position = Vector2(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        entity.transform.position = SerializableVector2(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         addEntity(entity)
     }
 

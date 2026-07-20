@@ -42,12 +42,14 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/droplet_is_draft"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:showText="false"
+                android:textOff=""
+                android:textOn=""
+                app:showText="false"
                 android:text="Is draft"
                 android:textColor="#EDDDDD"
                 tools:text="Is draft" />

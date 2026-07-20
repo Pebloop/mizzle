@@ -1,11 +1,15 @@
 package com.pebloop.mizzle.data
 
-import com.badlogic.gdx.math.Vector2
+import com.pebloop.mizzle.data.util.SerializableVector2
 import java.io.Serializable
 
 class Transform: Serializable {
-    var position: Vector2 = Vector2(0f,0f)
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+
+    var position: SerializableVector2 = SerializableVector2(0f,0f)
     var rotation: Float = 0f
-    var scale: Vector2 = Vector2(1f,1f)
+    var scale: SerializableVector2 = SerializableVector2(1f,1f)
     var zIndex: Int = 0
 }

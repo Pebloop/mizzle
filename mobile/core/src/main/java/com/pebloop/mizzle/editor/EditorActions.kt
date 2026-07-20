@@ -10,7 +10,9 @@ class EditorActions(
     val updateEntity: Function1<EntityData, Unit>,
     val exitEditor: Function0<Unit>,
     val upload: Function0<Unit>,
+    val deleteEntity: Function1<EntityData, Unit>,
     val openDropletSettings: Function0<Unit>,
+    val openResources: Function0<Unit>,
     val getInteractionMode: Function0<EditorScreen.InteractionMode>,
     val setInteractionMode: Function1<EditorScreen.InteractionMode, Unit>
 )

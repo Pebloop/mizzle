@@ -21,7 +21,7 @@ class EventBuilderFragment : AndroidFragmentApplication() {
 
         val actions = EditorActionsExtern({ _, _ -> }, {
             activity.exit()
-        }, {}, { _ -> }, false)
+        }, {}, { _ -> }, { _ -> }, false)
 
         val configuration = AndroidApplicationConfiguration()
         configuration.useImmersiveMode = false

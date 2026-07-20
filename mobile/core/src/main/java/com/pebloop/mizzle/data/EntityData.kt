@@ -6,8 +6,11 @@ import java.io.Serializable
 import java.util.UUID
 
 class EntityData: Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 
-    val id: String = UUID.randomUUID().toString()
+    var id: String = UUID.randomUUID().toString()
     var components: Array<Component> = arrayOf()
     var name: String = "My entity"
     var transform: Transform = Transform()

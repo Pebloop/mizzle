@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.pebloop.mizzle.data.ComponentData
 import com.pebloop.mizzle.data.components.data.DataComponent
+import com.pebloop.mizzle.data.util.SerializableVector2
 
 class RectComponent: ComponentData {
     override fun getId(): String {
@@ -16,7 +17,7 @@ class RectComponent: ComponentData {
 
     override fun getDataList(): Map<String, DataComponent<*>> {
         return mapOf(
-            Pair("size", DataComponent<Vector2>(Vector2(50f,50f), "VECTOR2")),
+            Pair("size", DataComponent<SerializableVector2>(SerializableVector2(50f,50f), "VECTOR2")),
             Pair("color", DataComponent<Int>(0xffffffff.toInt(), "COLOR")),
             Pair("outline color", DataComponent<Int>(0xffffffff.toInt(), "COLOR")),
             Pair("outline width", DataComponent<Int>(0, "INT"))
@@ -36,7 +37,7 @@ class RectComponent: ComponentData {
         datas: Map<String, DataComponent<*>>
     ) {
         if (batch == null) return
-        val size = datas["size"]?.data as? Vector2 ?: Vector2(0f, 0f)
+        val size = (datas["size"]?.data as? SerializableVector2)?.toVector2() ?: Vector2(0f, 0f)
         val colorInt = datas["color"]?.data as? Int ?: 0xffffffff.toInt()
         val outlineColorInt = datas["outline color"]?.data as? Int ?: 0xffffffff.toInt()
         val outlineWidth = datas["outline width"]?.data as? Int ?: 0
@@ -73,6 +74,6 @@ class RectComponent: ComponentData {
     }
 
     override fun getBounds(datas: Map<String, DataComponent<*>>): Vector2 {
-        return datas["size"]?.data as? Vector2 ?: Vector2(0f, 0f)
+        return (datas["size"]?.data as? SerializableVector2)?.toVector2() ?: Vector2(0f, 0f)
     }
 }

@@ -39,12 +39,16 @@
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/looping_switch"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Looping"
         android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/duration_layout" />
+        android:textOff=""
+        android:textOn=""
+        app:showText="false"
+        app:layout_constraintTop_toBottomOf="@id/duration_layout"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/frames_title"

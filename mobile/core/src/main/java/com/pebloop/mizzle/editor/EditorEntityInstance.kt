@@ -105,6 +105,11 @@ class EditorEntityInstance(val entity: EntityData, val actions: EditorActions) :
         zIndex = entity.transform.zIndex
     }
 
+    override fun act(delta: Float) {
+        super.act(delta)
+        entity.components.forEach { it.update(delta, entity) }
+    }
+
     private fun updateSize() {
         var maxWidth = 0f
         var maxHeight = 0f

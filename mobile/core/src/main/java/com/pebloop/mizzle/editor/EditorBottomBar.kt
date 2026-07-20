@@ -13,18 +13,21 @@ class EditorBottomBar(val skin: EditorSkin, actions: EditorActions): HorizontalG
 
     val addObjectButton: ImageButton
     val settingsButton: ImageButton
+    val resourcesButton: ImageButton
 
     init {
         this.zIndex = 9999
 
         addObjectButton = ImageButton(skin.newDrawable("plus"))
         settingsButton = ImageButton(skin.newDrawable("settings"))
+        resourcesButton = ImageButton(skin.newDrawable("resources"))
 
         this.pad(32f)
         this.bottom()
 
         this.addActor(addObjectButton)
         this.addActor(settingsButton)
+        this.addActor(resourcesButton)
 
         addObjectButton.addListener(object: ChangeListener() {
             override fun changed(
@@ -42,6 +45,15 @@ class EditorBottomBar(val skin: EditorSkin, actions: EditorActions): HorizontalG
                 actor: Actor?
             ) {
                 actions.openDropletSettings()
+            }
+        })
+
+        resourcesButton.addListener(object: ChangeListener() {
+            override fun changed(
+                event: ChangeEvent?,
+                actor: Actor?
+            ) {
+                actions.openResources()
             }
         })
     }

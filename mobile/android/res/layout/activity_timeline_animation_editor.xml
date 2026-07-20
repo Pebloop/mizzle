@@ -46,6 +46,8 @@
         android:layout_marginStart="16dp"
         android:text="Loop"
         android:textColor="#FFFFFF"
+        android:textOff=""
+        android:textOn=""
         app:layout_constraintBottom_toBottomOf="@id/duration_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/duration_layout" />

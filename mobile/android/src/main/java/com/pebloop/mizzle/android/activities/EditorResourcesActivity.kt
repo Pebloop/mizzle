@@ -1,27 +1,66 @@
 package com.pebloop.mizzle.android.activities
 
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pebloop.mizzle.R
 import com.pebloop.mizzle.data.DropletData
+import com.pebloop.mizzle.data.ResourceData
+import java.io.InputStream
 
 class EditorResourcesActivity : AppCompatActivity() {
 
     var droplet: DropletData? = null
+    private var mediaPlayer: MediaPlayer? = null
+    private var currentPlayingUri: String? = null
+
+    private var pendingResource: ResourceData? = null
+    private var isTexturePending: Boolean = true
+
+    private val tilesetEditorLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK) {
+            @Suppress("UNCHECKED_CAST")
+            val generated = result.data?.getSerializableExtra("resources", ArrayList::class.java) as? ArrayList<ResourceData>
+            if (generated != null) {
+                droplet?.textures = (droplet?.textures ?: arrayOf()) + generated.toTypedArray()
+                refreshLists()
+            }
+        }
+    }
+
+    private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            pendingResource?.path = it.toString()
+            // We might want to update the dialog UI here if we were showing it,
+            // but for simplicity, the path is just updated in the object.
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_resources)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.textures_title).parent as LinearLayout) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.resources_root)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left + 16, systemBars.top + 16, systemBars.right + 16, systemBars.bottom + 16)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
@@ -33,20 +72,46 @@ class EditorResourcesActivity : AppCompatActivity() {
         refreshLists()
 
         addTextureButton.setOnClickListener {
-            // Stub: Add a dummy texture for now
-            droplet?.let {
-                it.textures = it.textures.plus("texture_${it.textures.size + 1}")
-                refreshLists()
-            }
+            showResourceDialog(null, true)
         }
 
         addAudioButton.setOnClickListener {
-            // Stub: Add a dummy audio for now
-            droplet?.let {
-                it.audios = it.audios.plus("audio_${it.audios.size + 1}")
+            showResourceDialog(null, false)
+        }
+    }
+
+    private fun showResourceDialog(resource: ResourceData?, isTexture: Boolean) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_resource, null)
+        val nameInput: EditText = dialogView.findViewById(R.id.resource_name_input)
+        val pathText: TextView = dialogView.findViewById(R.id.resource_path_text)
+        val pickButton: MaterialButton = dialogView.findViewById(R.id.pick_file_button)
+
+        val workingResource = resource ?: ResourceData("New Resource", "")
+        nameInput.setText(workingResource.name)
+        pathText.text = if (workingResource.path.isEmpty()) "No file selected" else workingResource.path
+
+        pickButton.setOnClickListener {
+            pendingResource = workingResource
+            isTexturePending = isTexture
+            filePickerLauncher.launch(if (isTexture) "image/*" else "audio/*")
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(if (resource == null) "Add Resource" else "Edit Resource")
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                workingResource.name = nameInput.text.toString()
+                if (resource == null) {
+                    if (isTexture) {
+                        droplet?.textures = (droplet?.textures ?: arrayOf()) + workingResource
+                    } else {
+                        droplet?.audios = (droplet?.audios ?: arrayOf()) + workingResource
+                    }
+                }
                 refreshLists()
             }
-        }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun refreshLists() {
@@ -56,17 +121,105 @@ class EditorResourcesActivity : AppCompatActivity() {
         texturesList.removeAllViews()
         audiosList.removeAllViews()
 
-        droplet?.textures?.forEach { texture ->
-            val tv = TextView(this)
-            tv.text = texture
-            texturesList.addView(tv)
+        droplet?.textures?.forEachIndexed { index, resource ->
+            texturesList.addView(createResourceItem(resource, true, index))
         }
 
-        droplet?.audios?.forEach { audio ->
-            val tv = TextView(this)
-            tv.text = audio
-            audiosList.addView(tv)
+        droplet?.audios?.forEachIndexed { index, resource ->
+            audiosList.addView(createResourceItem(resource, false, index))
         }
+    }
+
+    private fun createResourceItem(resource: ResourceData, isTexture: Boolean, index: Int): View {
+        val view = LayoutInflater.from(this).inflate(R.layout.item_resource, null)
+        val preview: ImageView = view.findViewById(R.id.resource_preview)
+        val name: TextView = view.findViewById(R.id.resource_name)
+        val path: TextView = view.findViewById(R.id.resource_path)
+        val playButton: ImageButton = view.findViewById(R.id.resource_play_button)
+        val splitButton: ImageButton = view.findViewById(R.id.resource_split_button)
+        val editButton: ImageButton = view.findViewById(R.id.resource_edit_button)
+        val deleteButton: ImageButton = view.findViewById(R.id.resource_delete_button)
+
+        name.text = resource.name
+        path.text = resource.path
+
+        if (isTexture) {
+            splitButton.visibility = View.VISIBLE
+            splitButton.setOnClickListener {
+                val intent = Intent(this, EditorTilesetEditorActivity::class.java)
+                intent.putExtra("resource", resource)
+                tilesetEditorLauncher.launch(intent)
+            }
+            if (resource.path.isNotEmpty()) {
+                try {
+                    val uri = Uri.parse(resource.path)
+                    val inputStream: InputStream? = contentResolver.openInputStream(uri)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    preview.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    preview.setImageResource(R.drawable.icon_mizzle)
+                }
+            } else {
+                preview.setImageResource(R.drawable.icon_mizzle)
+            }
+        } else {
+            preview.setImageResource(R.drawable.play_button) // Just a placeholder icon for audio
+            playButton.visibility = View.VISIBLE
+            playButton.setOnClickListener {
+                toggleAudio(resource.path)
+            }
+        }
+
+        editButton.setOnClickListener {
+            showResourceDialog(resource, isTexture)
+        }
+
+        deleteButton.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Delete Resource")
+                .setMessage("Are you sure you want to delete ${resource.name}?")
+                .setPositiveButton("Delete") { _, _ ->
+                    if (isTexture) {
+                        droplet?.textures = droplet?.textures?.filterIndexed { i, _ -> i != index }?.toTypedArray() ?: arrayOf()
+                    } else {
+                        droplet?.audios = droplet?.audios?.filterIndexed { i, _ -> i != index }?.toTypedArray() ?: arrayOf()
+                    }
+                    refreshLists()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        return view
+    }
+
+    private fun toggleAudio(uriString: String) {
+        if (uriString.isEmpty()) return
+
+        if (mediaPlayer?.isPlaying == true && currentPlayingUri == uriString) {
+            mediaPlayer?.stop()
+            mediaPlayer?.reset()
+            currentPlayingUri = null
+            return
+        }
+
+        try {
+            mediaPlayer?.stop()
+            mediaPlayer?.reset()
+            mediaPlayer = mediaPlayer ?: MediaPlayer()
+            mediaPlayer?.setDataSource(this, Uri.parse(uriString))
+            mediaPlayer?.prepare()
+            mediaPlayer?.start()
+            currentPlayingUri = uriString
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 
     override fun finish() {

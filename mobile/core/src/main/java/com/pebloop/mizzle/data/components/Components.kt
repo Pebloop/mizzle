@@ -10,6 +10,9 @@ object Components {
         BoxColliderComponent(),
         CircleColliderComponent(),
         EventComponent(),
-        TextComponent()
+        TextComponent(),
+        SpriteComponent(),
+        AnimatedSpriteComponent(),
+        AnimationComponent()
     )
 }

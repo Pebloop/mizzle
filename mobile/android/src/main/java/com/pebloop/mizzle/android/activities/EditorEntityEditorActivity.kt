@@ -67,6 +67,7 @@ class EditorEntityEditorActivity : AppCompatActivity(), AndroidFragmentApplicati
                 val editComponentIntent = Intent(this, EditorComponentEditorActivity::class.java)
                 editComponentIntent.putExtra("index", index)
                 editComponentIntent.putExtra("component", entity!!.components[index])
+                editComponentIntent.putExtra("entity", entity)
                 editComponentEditorLauncher.launch(editComponentIntent)
             }
             horizontal.addView(editButton)
@@ -109,7 +110,8 @@ class EditorEntityEditorActivity : AppCompatActivity(), AndroidFragmentApplicati
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        entity = intent.getSerializableExtra("entity", EntityData::class.java)
+        entity = savedInstanceState?.getSerializable("entity", EntityData::class.java)
+            ?: intent.getSerializableExtra("entity", EntityData::class.java)
 
         setContentView(R.layout.activity_entity_editor)
 
@@ -162,6 +164,11 @@ class EditorEntityEditorActivity : AppCompatActivity(), AndroidFragmentApplicati
             addComponentEditorLauncher.launch(addCOmponentIntent)
         }
 
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable("entity", entity)
     }
 
     private fun saveAndExit() {
