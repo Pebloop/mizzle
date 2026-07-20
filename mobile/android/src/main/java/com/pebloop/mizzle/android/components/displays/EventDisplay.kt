@@ -1,12 +1,11 @@
 package com.pebloop.mizzle.android.components.displays
 
 import android.content.Context
-import android.content.Intent
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.pebloop.mizzle.android.activities.EventBuilderActivity
+import com.pebloop.mizzle.android.activities.EditorComponentEditorActivity
 import com.pebloop.mizzle.data.components.Event
 import com.pebloop.mizzle.data.components.data.DataComponent
 
@@ -33,9 +32,9 @@ class EventDisplay : ComponentDisplay<Event> {
 
         button.text = "Open Event Builder"
         button.setOnClickListener {
-            val intent = Intent(context, EventBuilderActivity::class.java)
-            intent.putExtra("event", data.value.data)
-            context.startActivity(intent)
+            if (context is EditorComponentEditorActivity) {
+                context.launchEventBuilder(data.key, data.value.data)
+            }
         }
 
         linear.addView(label)

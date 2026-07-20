@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.TextField
 
 class EditorSkin: Skin() {
 
@@ -33,6 +34,19 @@ class EditorSkin: Skin() {
         style.font = this.get("font", BitmapFont::class.java)
         this.add("default", style)
 
+        val textFieldStyle = TextField.TextFieldStyle()
+        textFieldStyle.font = this.get("font", BitmapFont::class.java)
+        textFieldStyle.fontColor = Color.WHITE
+        textFieldStyle.background = this.newDrawable("white", Color(0f, 0f, 0f, 0.3f))
+        textFieldStyle.cursor = this.newDrawable("white", Color.WHITE)
+        textFieldStyle.selection = this.newDrawable("white", Color(1f, 1f, 1f, 0.5f))
+        this.add("default", textFieldStyle)
+
+        val smallTextFieldStyle = TextField.TextFieldStyle(textFieldStyle)
+        val smallFont = BitmapFont(Gdx.files.internal("roses.fnt"), Gdx.files.internal("roses.png"), false)
+        smallFont.data.setScale(0.3f)
+        smallTextFieldStyle.font = smallFont
+        this.add("small", smallTextFieldStyle)
     }
 
 }

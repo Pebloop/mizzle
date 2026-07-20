@@ -20,7 +20,7 @@ class EventBuilderFragment : AndroidFragmentApplication() {
         val event = activity.event
 
         val actions = EditorActionsExtern({ _, _ -> }, {
-            activity.finish()
+            activity.exit()
         }, {}, { _ -> }, false)
 
         val configuration = AndroidApplicationConfiguration()

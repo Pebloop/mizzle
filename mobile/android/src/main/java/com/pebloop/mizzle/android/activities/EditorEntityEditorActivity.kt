@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -126,6 +127,12 @@ class EditorEntityEditorActivity : AppCompatActivity(), AndroidFragmentApplicati
         val componentsContainer: LinearLayout = findViewById(R.id.entity_components_container)
         val addComponentButton: ImageButton = findViewById(R.id.entity_add_component)
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                saveAndExit()
+            }
+        })
+
         nameTextInput.setText(entity!!.name)
         nameTextInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -140,9 +147,7 @@ class EditorEntityEditorActivity : AppCompatActivity(), AndroidFragmentApplicati
             }
         })
         closeButton.setOnClickListener {
-            intent.putExtra("entity", entity)
-            setResult(RESULT_OK, intent)
-            finish()
+            saveAndExit()
         }
         transformButton.setOnClickListener {
             val transformIntent: Intent = Intent(this, EditorEntityEditorTransformActivity::class.java)
@@ -157,6 +162,12 @@ class EditorEntityEditorActivity : AppCompatActivity(), AndroidFragmentApplicati
             addComponentEditorLauncher.launch(addCOmponentIntent)
         }
 
+    }
+
+    private fun saveAndExit() {
+        intent.putExtra("entity", entity)
+        setResult(RESULT_OK, intent)
+        finish()
     }
 
     override fun exit() {

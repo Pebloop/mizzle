@@ -7,13 +7,18 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.ScreenUtils
 import com.pebloop.mizzle.data.DropletData
+import com.pebloop.mizzle.data.components.Event
+import com.pebloop.mizzle.data.components.EventType
 import com.pebloop.mizzle.editor.EditorActionsExtern
 import com.pebloop.mizzle.editor.EditorSkin
+import com.pebloop.mizzle.scripting.ScriptEngine
 
 class GamePlayerScreen(val droplet: DropletData, val actionsExtern: EditorActionsExtern? = null): Screen {
     private val stage: Stage = Stage()
@@ -23,11 +28,30 @@ class GamePlayerScreen(val droplet: DropletData, val actionsExtern: EditorAction
     private val world: World = World(Vector2(0f, -9.8f), true)
     private val bodyMap = mutableMapOf<GameEntityInstance, Body>()
     private val PPM = 100f
+    private val scriptEngine = ScriptEngine()
 
     init {
+        world.setContactListener(object : ContactListener {
+            override fun beginContact(contact: Contact) {
+                handleCollision(contact.fixtureA.body, contact.fixtureB.body)
+                handleCollision(contact.fixtureB.body, contact.fixtureA.body)
+            }
+            override fun endContact(contact: Contact) {}
+            override fun preSolve(contact: Contact, oldManifold: Manifold) {}
+            override fun postSolve(contact: Contact, impulse: ContactImpulse) {}
+        })
+
         for (entity in droplet.entities) {
             val instance = GameEntityInstance(entity)
             stage.addActor(instance)
+
+            // Input listener for ON_CLICK
+            instance.addListener(object : InputListener() {
+                override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                    executeEvent(instance, EventType.ON_CLICK)
+                    return true
+                }
+            })
 
             // Physics initialization
             val rigidBody = entity.components.find { it.component.getId() == "RIGID_BODY" }
@@ -77,6 +101,13 @@ class GamePlayerScreen(val droplet: DropletData, val actionsExtern: EditorAction
                     }
                 }
                 bodyMap[instance] = body
+            }
+        }
+
+        // Trigger ON_START events for all entities
+        for (actor in stage.actors) {
+            if (actor is GameEntityInstance) {
+                executeEvent(actor, EventType.ON_START)
             }
         }
 
@@ -162,5 +193,25 @@ class GamePlayerScreen(val droplet: DropletData, val actionsExtern: EditorAction
     override fun dispose() {
         stage.dispose()
         world.dispose()
+    }
+
+    private fun executeEvent(instance: GameEntityInstance, type: EventType) {
+        for (component in instance.entity.components) {
+            if (component.component.getId() == "EVENT") {
+                val eventType = component.getData("event") as? EventType
+                if (eventType == type) {
+                    val event = component.getData("action") as? Event
+                    if (event != null && event.code != "none") {
+                        Gdx.app.log("GamePlayer", "Executing ${type} for ${instance.entity.name}")
+                        scriptEngine.execute(event.code, instance, bodyMap[instance])
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handleCollision(body: Body, otherBody: Body) {
+        val instance = bodyMap.entries.find { it.value == body }?.key ?: return
+        executeEvent(instance, EventType.ON_COLLISION)
     }
 }

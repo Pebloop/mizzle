@@ -1,5 +1,6 @@
 package com.pebloop.mizzle.android.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -32,6 +33,9 @@ class EventBuilderActivity : AppCompatActivity(), AndroidFragmentApplication.Cal
     }
 
     override fun exit() {
+        val resultIntent = Intent()
+        resultIntent.putExtra("event", event)
+        setResult(RESULT_OK, resultIntent)
         finish()
     }
 }
