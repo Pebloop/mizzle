@@ -9,4 +9,8 @@
         android:id="@+id/library"
         android:icon="@android:drawable/ic_menu_save"
         android:title="@string/tab_library" />
+    <item
+        android:id="@+id/profile"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="@string/tab_profile" />
 </menu>

@@ -2,12 +2,27 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "mizzle-server",
 	"compatibility_date": "2026-07-20",
-	"compatibility_flags": ["nodejs_als"],
+	"compatibility_flags": [
+		"nodejs_als"
+	],
 	"main": ".svelte-kit/cloudflare/_worker.js",
 	"assets": {
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "mizzle",
+			"database_id": "19f79986-58a7-438b-895b-4cf2b21816e7"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "BUCKET",
+			"bucket_name": "mizzle"
+		}
+	],
 	"workers_dev": true,
 	"preview_urls": true
 }

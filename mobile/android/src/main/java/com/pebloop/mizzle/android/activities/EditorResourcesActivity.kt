@@ -21,8 +21,13 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pebloop.mizzle.R
+import com.pebloop.mizzle.android.util.DropletPersistence
 import com.pebloop.mizzle.data.DropletData
 import com.pebloop.mizzle.data.ResourceData
+import android.widget.Toast
+import com.pebloop.mizzle.android.auth.AuthManager
+import com.pebloop.mizzle.android.auth.ServerResourceItem
+import java.io.File
 import java.io.InputStream
 
 class EditorResourcesActivity : AppCompatActivity() {
@@ -85,6 +90,7 @@ class EditorResourcesActivity : AppCompatActivity() {
         val nameInput: EditText = dialogView.findViewById(R.id.resource_name_input)
         val pathText: TextView = dialogView.findViewById(R.id.resource_path_text)
         val pickButton: MaterialButton = dialogView.findViewById(R.id.pick_file_button)
+        val serverLibButton: MaterialButton = dialogView.findViewById(R.id.server_library_button)
 
         val workingResource = resource ?: ResourceData("New Resource", "")
         nameInput.setText(workingResource.name)
@@ -94,6 +100,58 @@ class EditorResourcesActivity : AppCompatActivity() {
             pendingResource = workingResource
             isTexturePending = isTexture
             filePickerLauncher.launch(if (isTexture) "image/*" else "audio/*")
+        }
+
+        serverLibButton.setOnClickListener {
+            val typeFilter = if (isTexture) "texture" else "audio"
+            Toast.makeText(this, "Fetching server resource library...", Toast.LENGTH_SHORT).show()
+            AuthManager.getInstance(this).fetchServerResources(typeFilter, object : AuthManager.AuthCallback<List<ServerResourceItem>> {
+                override fun onSuccess(result: List<ServerResourceItem>) {
+                    if (result.isEmpty()) {
+                        Toast.makeText(this@EditorResourcesActivity, "No ${typeFilter}s found in server library", Toast.LENGTH_LONG).show()
+                        return
+                    }
+
+                    val names = result.map { it.name }.toTypedArray()
+                    MaterialAlertDialogBuilder(this@EditorResourcesActivity)
+                        .setTitle("Select ${if (isTexture) "Texture" else "Audio"} from Server")
+                        .setItems(names) { _, which ->
+                            val selectedItem = result[which]
+                            val ext = if (selectedItem.type == "audio") ".mp3" else ".png"
+                            val targetFile = File(filesDir, "server_resources/${selectedItem.id}$ext")
+
+                            Toast.makeText(this@EditorResourcesActivity, "Downloading ${selectedItem.name}...", Toast.LENGTH_SHORT).show()
+                            AuthManager.getInstance(this@EditorResourcesActivity).downloadServerResourceFile(
+                                selectedItem.downloadUrl,
+                                targetFile,
+                                object : AuthManager.AuthCallback<File> {
+                                    override fun onSuccess(downloadedFile: File) {
+                                        workingResource.name = selectedItem.name
+                                        workingResource.path = Uri.fromFile(downloadedFile).toString()
+                                        workingResource.regionX = selectedItem.regionX
+                                        workingResource.regionY = selectedItem.regionY
+                                        workingResource.regionWidth = selectedItem.regionWidth
+                                        workingResource.regionHeight = selectedItem.regionHeight
+
+                                        nameInput.setText(selectedItem.name)
+                                        pathText.text = workingResource.path
+                                        Toast.makeText(this@EditorResourcesActivity, "Downloaded successfully!", Toast.LENGTH_SHORT).show()
+                                    }
+
+                                    override fun onError(errorMessage: String) {
+                                        Toast.makeText(this@EditorResourcesActivity, "Download failed: $errorMessage", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            )
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                }
+
+                override fun onError(errorMessage: String) {
+                    Toast.makeText(this@EditorResourcesActivity, "Error: $errorMessage", Toast.LENGTH_LONG).show()
+                }
+            })
         }
 
         MaterialAlertDialogBuilder(this)
@@ -113,6 +171,7 @@ class EditorResourcesActivity : AppCompatActivity() {
             .setNegativeButton("Cancel", null)
             .show()
     }
+
 
     private fun refreshLists() {
         val texturesList: LinearLayout = findViewById(R.id.textures_list)
@@ -223,6 +282,9 @@ class EditorResourcesActivity : AppCompatActivity() {
     }
 
     override fun finish() {
+        droplet?.let {
+            DropletPersistence.saveDroplet(this, it)
+        }
         intent.putExtra("droplet", droplet)
         setResult(RESULT_OK, intent)
         super.finish()

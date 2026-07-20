@@ -26,8 +26,9 @@ class App : Fragment(R.layout.fragment_app) {
 
         val bnv: BottomNavigationView? = v?.findViewById(R.id.bottomNavigationView)
 
-        var playFragment = PlayFragment()
+        val playFragment = PlayFragment()
         val libraryFragment = LibraryFragment()
+        val profileFragment = ProfileFragment()
 
         setCurrentFragment(playFragment)
         bnv?.setOnItemSelectedListener {
@@ -37,6 +38,9 @@ class App : Fragment(R.layout.fragment_app) {
                 }
                 R.id.library -> {
                     setCurrentFragment(libraryFragment)
+                }
+                R.id.profile -> {
+                    setCurrentFragment(profileFragment)
                 }
             }
             true

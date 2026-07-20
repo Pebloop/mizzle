@@ -22,6 +22,7 @@ import com.pebloop.mizzle.android.activities.EditorEntityEditorActivity
 import com.pebloop.mizzle.android.activities.EditorResourcesActivity
 import com.pebloop.mizzle.android.activities.PlayActivity
 import com.pebloop.mizzle.android.activities.DropletSettingsActivity
+import com.pebloop.mizzle.android.util.DropletPersistence
 import com.pebloop.mizzle.android.util.TextureLoader
 import com.pebloop.mizzle.data.DropletData
 import com.pebloop.mizzle.data.EntityData
@@ -44,6 +45,9 @@ class EditorFragment : AndroidFragmentApplication() {
             val newEntity = intent!!.getSerializableExtra("entity", EntityData::class.java)
             val editorScreen = Main.getInstance().screen as? EditorScreen
             editorScreen?.updateEntity(newEntity!!)
+            (activity as? EditorActivity)?.droplet?.let {
+                DropletPersistence.saveDroplet(requireContext(), it)
+            }
         }
     }
 
@@ -53,6 +57,7 @@ class EditorFragment : AndroidFragmentApplication() {
             val newDroplet = intent!!.getSerializableExtra("droplet", DropletData::class.java)
             val currentDroplet = (activity as EditorActivity).droplet
             currentDroplet?.updateFrom(newDroplet!!)
+            DropletPersistence.saveDroplet(requireContext(), currentDroplet!!)
             // Re-link textures in case they were lost or the instance changed
             TextureLoader.loadDropletTextures(requireContext(), currentDroplet!!, Main.getInstance(), true)
         }
@@ -64,6 +69,7 @@ class EditorFragment : AndroidFragmentApplication() {
             val newDroplet = intent!!.getSerializableExtra("droplet", DropletData::class.java)
             val currentDroplet = (activity as EditorActivity).droplet
             currentDroplet?.updateFrom(newDroplet!!)
+            DropletPersistence.saveDroplet(requireContext(), currentDroplet!!)
             TextureLoader.loadDropletTextures(requireContext(), currentDroplet!!, Main.getInstance(), true)
         }
     }
@@ -87,6 +93,9 @@ class EditorFragment : AndroidFragmentApplication() {
         savedInstanceState: Bundle?
     ): View? {
         val actions: EditorActionsExtern = EditorActionsExtern(::openEntityEditor, {
+            (activity as? EditorActivity)?.droplet?.let {
+                DropletPersistence.saveDroplet(requireContext(), it)
+            }
             activity?.finish()
         }, {
             val intent = Intent(activity, PlayActivity::class.java)

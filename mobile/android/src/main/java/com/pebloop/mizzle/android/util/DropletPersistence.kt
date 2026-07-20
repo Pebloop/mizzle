@@ -4,11 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
+import com.pebloop.mizzle.android.auth.AuthManager
 import com.pebloop.mizzle.data.DropletData
 import java.io.File
-import java.io.FileInputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 
 object DropletPersistence {
     private const val TAG = "DropletPersistence"
@@ -16,6 +14,16 @@ object DropletPersistence {
 
     private val json = Json().apply {
         setOutputType(JsonWriter.OutputType.json)
+        setIgnoreUnknownFields(true)
+    }
+
+    fun toJson(droplet: DropletData): String {
+        return try {
+            json.toJson(droplet)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error serializing droplet to JSON", e)
+            ""
+        }
     }
 
     fun saveDroplet(context: Context, droplet: DropletData): Boolean {
@@ -24,9 +32,27 @@ object DropletPersistence {
             if (!dir.exists()) {
                 dir.mkdirs()
             }
-            val file = File(dir, "${droplet.id}.json")
-            file.writeText(json.prettyPrint(droplet))
-            Log.d(TAG, "Droplet saved successfully: ${file.absolutePath}")
+            val jsonFile = File(dir, "${droplet.id}.json")
+            val jsonStr = json.toJson(droplet)
+            jsonFile.writeText(jsonStr)
+            Log.d(TAG, "Droplet saved successfully: ${jsonFile.absolutePath}")
+
+            // Automatically sync to server on each save
+            try {
+                val authManager = AuthManager.getInstance(context)
+                authManager.uploadDroplet(droplet.id, droplet.name, jsonStr, object : AuthManager.AuthCallback<String> {
+                    override fun onSuccess(result: String) {
+                        Log.d(TAG, "Droplet synced to server successfully: ${droplet.id}")
+                    }
+
+                    override fun onError(errorMessage: String) {
+                        Log.w(TAG, "Droplet server sync: $errorMessage")
+                    }
+                })
+            } catch (e: Exception) {
+                Log.e(TAG, "Error initiating server sync for droplet", e)
+            }
+
             true
         } catch (e: Exception) {
             Log.e(TAG, "Error saving droplet", e)
@@ -38,39 +64,21 @@ object DropletPersistence {
         val droplets = mutableListOf<DropletData>()
         try {
             val dir = File(context.filesDir, DROPLETS_DIR)
-            if (!dir.exists()) return droplets
+            if (!dir.exists()) return emptyList()
 
-            val files = dir.listFiles() ?: return droplets
+            val files = dir.listFiles() ?: return emptyList()
 
-            // Load JSON droplets
             files.filter { it.extension == "json" }.forEach { file ->
                 try {
-                    val droplet = json.fromJson(DropletData::class.java, file.readText())
-                    if (droplet != null) droplets.add(droplet)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error reading droplet JSON file: ${file.name}", e)
-                }
-            }
-
-            // Load and migrate legacy .ser droplets
-            files.filter { it.extension == "ser" }.forEach { file ->
-                var droplet: DropletData? = null
-                try {
-                    ObjectInputStream(FileInputStream(file)).use {
-                        droplet = it.readObject() as? DropletData
-                    }
-                    if (droplet != null) {
-                        droplets.add(droplet)
-                        // Migrate to JSON
-                        if (saveDroplet(context, droplet)) {
-                            file.delete()
-                            Log.d(TAG, "Migrated legacy droplet to JSON: ${file.name}")
+                    val text = file.readText()
+                    if (text.isNotBlank()) {
+                        val droplet = json.fromJson(DropletData::class.java, text)
+                        if (droplet != null) {
+                            droplets.add(droplet)
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error reading legacy droplet file: ${file.name}. Deleting incompatible file.", e)
-                    // Delete incompatible legacy files to prevent repeated errors
-                    file.delete()
+                    Log.e(TAG, "Error reading droplet JSON file: ${file.name}", e)
                 }
             }
         } catch (e: Exception) {
@@ -84,12 +92,13 @@ object DropletPersistence {
             val dir = File(context.filesDir, DROPLETS_DIR)
             val jsonFile = File(dir, "$dropletId.json")
             val serFile = File(dir, "$dropletId.ser")
+            if (serFile.exists()) serFile.delete()
 
-            var deleted = false
-            if (jsonFile.exists()) deleted = jsonFile.delete() || deleted
-            if (serFile.exists()) deleted = serFile.delete() || deleted
-
-            deleted
+            if (jsonFile.exists()) {
+                jsonFile.delete()
+            } else {
+                false
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error deleting droplet: $dropletId", e)
             false

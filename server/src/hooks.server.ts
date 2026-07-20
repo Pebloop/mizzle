@@ -10,7 +10,7 @@ const handleBetterAuth: Handle = async ({ event, resolve }) => {
 	event.locals.auth = createAuth(event.platform.env.DB);
 
 	const { auth } = event.locals;
-	const session = await auth.api.getSession({ headers: event.request.headers });
+	const session = await auth.api.getSession({ headers: event.request.headers }).catch(() => null);
 
 	if (session) {
 		event.locals.session = session.session;

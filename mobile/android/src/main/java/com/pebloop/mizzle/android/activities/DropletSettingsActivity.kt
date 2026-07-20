@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication
 import com.google.android.material.textfield.TextInputEditText
 import com.pebloop.mizzle.R
+import com.pebloop.mizzle.android.util.DropletPersistence
 import com.pebloop.mizzle.data.DropletData
 
 class DropletSettingsActivity : AppCompatActivity(), AndroidFragmentApplication.Callbacks {
@@ -46,6 +47,7 @@ class DropletSettingsActivity : AppCompatActivity(), AndroidFragmentApplication.
             droplet?.let {
                 it.name = nameInput.text.toString()
                 it.isPublic = !publicSwitch.isChecked
+                DropletPersistence.saveDroplet(this, it)
                 intent.putExtra("droplet", it)
                 setResult(RESULT_OK, intent)
             }

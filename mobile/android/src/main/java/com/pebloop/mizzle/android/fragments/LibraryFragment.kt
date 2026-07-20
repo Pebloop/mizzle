@@ -35,8 +35,10 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
 
         val newDropletButton: FloatingActionButton? = view.findViewById(R.id.newDropplet)
         newDropletButton?.setOnClickListener {
+            val newDroplet = DropletData()
+            DropletPersistence.saveDroplet(requireContext(), newDroplet)
             val intent = Intent(activity, EditorActivity::class.java)
-            intent.putExtra("droplet", DropletData())
+            intent.putExtra("droplet", newDroplet)
             startActivity(intent)
         }
 

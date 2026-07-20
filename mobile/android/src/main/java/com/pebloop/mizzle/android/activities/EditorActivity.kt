@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication
 import com.pebloop.mizzle.R
+import com.pebloop.mizzle.android.util.DropletPersistence
 import com.pebloop.mizzle.data.DropletData
 
 class EditorActivity : AppCompatActivity(), AndroidFragmentApplication.Callbacks {
@@ -29,6 +30,13 @@ class EditorActivity : AppCompatActivity(), AndroidFragmentApplication.Callbacks
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        droplet?.let {
+            DropletPersistence.saveDroplet(this, it)
+        }
     }
 
     override fun exit() {
