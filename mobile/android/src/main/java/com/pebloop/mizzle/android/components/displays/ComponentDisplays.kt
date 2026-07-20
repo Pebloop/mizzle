@@ -8,7 +8,8 @@ object ComponentDisplays {
         FloatDisplay(),
         BooleanDisplay(),
         EventDisplay(),
-        EventTypeDisplay()
+        EventTypeDisplay(),
+        StringDisplay()
     )
 
     fun getById(id: String): ComponentDisplay<*>? {

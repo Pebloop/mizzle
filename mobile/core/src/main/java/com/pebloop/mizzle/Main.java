@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.pebloop.mizzle.data.DropletData;
 import com.pebloop.mizzle.data.components.Event;
 import com.pebloop.mizzle.editor.EditorActionsExtern;
@@ -22,6 +23,7 @@ public class Main extends Game {
 
     private Texture whitePixel;
     private Texture circle;
+    private BitmapFont font;
 
     public static Main getInstance() {
         return (Main) Gdx.app.getApplicationListener();
@@ -35,12 +37,17 @@ public class Main extends Game {
         return circle;
     }
 
+    public BitmapFont getFont() {
+        return font;
+    }
+
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
         whitePixel = Graphics.INSTANCE.createWhitePixelTexture();
         circle = Graphics.INSTANCE.createCircleTexture();
+        font = new BitmapFont(Gdx.files.internal("roses.fnt"), Gdx.files.internal("roses.png"), false);
 
         switch (mode) {
             case EDITOR:
@@ -79,6 +86,7 @@ public class Main extends Game {
         super.dispose();
         if (whitePixel != null) whitePixel.dispose();
         if (circle != null) circle.dispose();
+        if (font != null) font.dispose();
     }
 
 }
