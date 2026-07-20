@@ -60,25 +60,11 @@ class Workspace(val skin: EditorSkin) : Group() {
         val piece = PuzzlePiece(type, skin)
         piece.setPosition(data.x, data.y)
 
-        // Restore custom values (text fields)
+        // Restore custom values (text fields and select boxes)
         for ((index, value) in data.customValues) {
             piece.customValues[index] = value
             piece.textFields[index]?.text = value
-        }
-
-        // Load next piece in chain
-        data.next?.let {
-            val nextPiece = createPieceFromData(it)
-            piece.nextPiece = nextPiece
-            nextPiece.setPosition(0f, -nextPiece.height)
-            piece.addActor(nextPiece)
-        }
-
-        // Load body piece for containers
-        data.body?.let {
-            val bodyPiece = createPieceFromData(it)
-            piece.bodyPiece = bodyPiece
-            piece.addActor(bodyPiece)
+            piece.selectBoxes[index]?.selected = value
         }
 
         // Load internal argument values
@@ -93,6 +79,22 @@ class Workspace(val skin: EditorSkin) : Group() {
                 }
             }
         }
+
+        // Load body piece for containers
+        data.body?.let {
+            val bodyPiece = createPieceFromData(it)
+            piece.bodyPiece = bodyPiece
+            piece.addActor(bodyPiece)
+        }
+
+        // Load next piece in chain
+        data.next?.let {
+            val nextPiece = createPieceFromData(it)
+            piece.nextPiece = nextPiece
+            piece.addActor(nextPiece)
+        }
+
+        piece.refreshLayout()
 
         return piece
     }

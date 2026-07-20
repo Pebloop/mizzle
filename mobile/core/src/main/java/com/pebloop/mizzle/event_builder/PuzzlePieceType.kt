@@ -23,6 +23,10 @@ enum class PuzzlePieceType(
     STRING_VALUE("STRING_VALUE", "string #STRING0", "\$0", PuzzlePieceCategory.VALUE, PuzzleSemanticCategory.TEXT, PuzzleValueType.STRING),
     ROUND_VALUE("ROUND_VALUE", "rounded \$FLOAT0", "math.round(\$0)", PuzzlePieceCategory.VALUE, PuzzleSemanticCategory.NUMBERS, PuzzleValueType.INT),
 
+    BOOLEAN_VALUE("BOOLEAN_VALUE", "bool %BOOL0", "%0", PuzzlePieceCategory.VALUE, PuzzleSemanticCategory.LOGIC, PuzzleValueType.BOOLEAN),
+    COMPARE("COMPARE", "\$ANY0 %OP0 \$ANY1", "(\$0 %0 \$1)", PuzzlePieceCategory.VALUE, PuzzleSemanticCategory.LOGIC, PuzzleValueType.BOOLEAN),
+    NOT("NOT", "not \$BOOLEAN0", "(not \$0)", PuzzlePieceCategory.VALUE, PuzzleSemanticCategory.LOGIC, PuzzleValueType.BOOLEAN),
+
     // Containers
     IF("IF", "if \$BOOLEAN0 then", "if \$0 then\n\$BODY\nend", PuzzlePieceCategory.CONTAINER, PuzzleSemanticCategory.LOGIC),
     WHILE("WHILE", "while \$BOOLEAN0 do", "while \$0 do\n\$BODY\nend", PuzzlePieceCategory.CONTAINER, PuzzleSemanticCategory.LOGIC);

@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
@@ -35,6 +36,7 @@ class PuzzlePiece(
 
     val inlineSockets = mutableListOf<InlineSocket>()
     val textFields = mutableMapOf<Int, TextField>()
+    val selectBoxes = mutableMapOf<Int, SelectBox<String>>()
     val customValues = mutableMapOf<Int, String>()
 
     private val topTable = Table()
@@ -52,16 +54,18 @@ class PuzzlePiece(
         val parts = pieceType.displayName.split(" ")
         for (part in parts) {
             if (part.startsWith("$")) {
+                // Socket: $TYPE0
                 val typeStr = part.substring(1, part.length - 1)
-                val type = try { PuzzleValueType.valueOf(typeStr) } catch(e: Exception) { PuzzleValueType.ANY }
+                val type = try { PuzzleValueType.valueOf(typeStr) } catch (e: Exception) { PuzzleValueType.ANY }
                 val index = part.takeLast(1).toIntOrNull() ?: 0
 
                 val socket = InlineSocket(index, type, skin)
                 inlineSockets.add(socket)
                 topTable.add(socket).pad(5f).padLeft(5f + notchRadius.toFloat())
             } else if (part.startsWith("#")) {
+                // Input: #TYPE0
                 val typeStr = part.substring(1, part.length - 1)
-                val type = try { PuzzleValueType.valueOf(typeStr) } catch(e: Exception) { PuzzleValueType.STRING }
+                val type = try { PuzzleValueType.valueOf(typeStr) } catch (e: Exception) { PuzzleValueType.STRING }
                 val index = part.takeLast(1).toIntOrNull() ?: 0
 
                 val field = TextField("0", skin, "small")
@@ -78,6 +82,26 @@ class PuzzlePiece(
                 })
 
                 topTable.add(field).width(80f).height(60f).pad(5f)
+            } else if (part.startsWith("%")) {
+                // SelectBox: %OP0 or %BOOL0
+                val index = part.takeLast(1).toIntOrNull() ?: 0
+                val selectBox = SelectBox<String>(skin)
+                if (part.contains("OP")) {
+                    selectBox.setItems("==", "~=", ">", "<", ">=", "<=")
+                } else if (part.contains("BOOL")) {
+                    selectBox.setItems("true", "false")
+                }
+                selectBoxes[index] = selectBox
+                customValues[index] = selectBox.selected
+
+                selectBox.addListener(object : ChangeListener() {
+                    override fun changed(event: ChangeEvent?, actor: com.badlogic.gdx.scenes.scene2d.Actor?) {
+                        customValues[index] = selectBox.selected
+                        refreshLayout()
+                    }
+                })
+
+                topTable.add(selectBox).minWidth(80f).pad(5f)
             } else {
                 val label = Label(part, skin.get("default", Label.LabelStyle::class.java))
                 label.setFontScale(0.4f)
@@ -161,7 +185,8 @@ class PuzzlePiece(
     fun refreshLayout() {
         topTable.layout()
         val paddingWidth = 20f
-        val topPartHeight = topTable.prefHeight + 40f
+        val paddingHeight = 60f
+        val topPartHeight = topTable.prefHeight + paddingHeight
 
         if (pieceType.category == PuzzlePieceCategory.CONTAINER) {
             val bodyHeight = getChainHeight(bodyPiece) ?: 80f
@@ -263,7 +288,7 @@ class PuzzlePiece(
                     }
 
                     if (actor.pieceType.category == PuzzlePieceCategory.CONTAINER && actor.bodyPiece == null) {
-                        val topPartHeight = actor.topTable.prefHeight + 40f
+                        val topPartHeight = actor.topTable.prefHeight + 60f
                         val internalTop = actor.localToStageCoordinates(Vector2(spineWidth, actor.height - topPartHeight))
                         if (myTopLeft.dst(internalTop) < 30f) {
                             snapToBody(actor)
@@ -353,16 +378,22 @@ class PuzzlePiece(
 
     fun generateCode(): String {
         var code = pieceType.luaTemplate
+        // Replace sockets
         for (socket in inlineSockets) {
             val valCode = socket.attachedPiece?.generateCode() ?: getDefaultValueForPlaceholder(socket.expectedType)
             code = code.replace("$" + socket.index, valCode)
         }
+        // Replace inputs
         for ((index, field) in textFields) {
             var valStr = field.text
             if (pieceType.returnType == PuzzleValueType.STRING) {
                 valStr = "\"" + valStr.replace("\"", "\\\"") + "\""
             }
             code = code.replace("\$$index", valStr)
+        }
+        // Replace SelectBoxes
+        for ((index, selectBox) in selectBoxes) {
+            code = code.replace("%" + index, selectBox.selected)
         }
 
         if (pieceType.category == PuzzlePieceCategory.CONTAINER) {
@@ -378,8 +409,9 @@ class PuzzlePiece(
     }
 
     private fun getDefaultValueForPlaceholder(type: PuzzleValueType): String {
-        return when(type) {
+        return when (type) {
             PuzzleValueType.STRING -> "\"\""
+            PuzzleValueType.BOOLEAN -> "true"
             else -> "0"
         }
     }

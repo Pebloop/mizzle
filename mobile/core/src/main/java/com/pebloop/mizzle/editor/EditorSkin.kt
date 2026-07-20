@@ -6,6 +6,9 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.List
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 
@@ -47,6 +50,28 @@ class EditorSkin: Skin() {
         smallFont.data.setScale(0.3f)
         smallTextFieldStyle.font = smallFont
         this.add("small", smallTextFieldStyle)
+
+        val mediumFont = BitmapFont(Gdx.files.internal("roses.fnt"), Gdx.files.internal("roses.png"), false)
+        mediumFont.data.setScale(0.5f)
+        this.add("medium", mediumFont)
+
+        val listStyle = List.ListStyle()
+        listStyle.font = mediumFont
+        listStyle.fontColorSelected = Color.BLACK
+        listStyle.fontColorUnselected = Color.WHITE
+        listStyle.selection = this.newDrawable("white", Color.WHITE)
+        this.add("default", listStyle)
+
+        val scrollPaneStyle = ScrollPane.ScrollPaneStyle()
+        this.add("default", scrollPaneStyle)
+
+        val selectBoxStyle = SelectBox.SelectBoxStyle()
+        selectBoxStyle.font = mediumFont
+        selectBoxStyle.fontColor = Color.WHITE
+        selectBoxStyle.background = this.newDrawable("white", Color(0f, 0f, 0f, 0.3f))
+        selectBoxStyle.scrollStyle = scrollPaneStyle
+        selectBoxStyle.listStyle = listStyle
+        this.add("default", selectBoxStyle)
     }
 
 }
