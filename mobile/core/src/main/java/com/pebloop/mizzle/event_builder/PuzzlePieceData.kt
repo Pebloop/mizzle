@@ -8,5 +8,6 @@ data class PuzzlePieceData(
     val y: Float,
     var next: PuzzlePieceData? = null,
     val internalValues: MutableMap<Int, PuzzlePieceData?> = mutableMapOf(),
-    val customValues: MutableMap<Int, String> = mutableMapOf()
+    val customValues: MutableMap<Int, String> = mutableMapOf(),
+    var body: PuzzlePieceData? = null
 ) : Serializable

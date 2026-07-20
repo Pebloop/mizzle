@@ -31,31 +31,35 @@ class PuzzlePiece(
     var onDragStop: (() -> Unit)? = null
 
     var nextPiece: PuzzlePiece? = null
+    var bodyPiece: PuzzlePiece? = null
+
     val inlineSockets = mutableListOf<InlineSocket>()
     val textFields = mutableMapOf<Int, TextField>()
     val customValues = mutableMapOf<Int, String>()
 
-    private val mainTable = Table()
+    private val topTable = Table()
+    private val grabOffset = Vector2()
+    private val spineWidth = 40f
+    private val bottomBarHeight = 40f
 
     init {
         touchable = Touchable.enabled
+        setTransform(true)
 
-        mainTable.setFillParent(true)
-        addActor(mainTable)
+        topTable.setFillParent(false)
+        addActor(topTable)
 
         val parts = pieceType.displayName.split(" ")
         for (part in parts) {
             if (part.startsWith("$")) {
-                // Socket: $TYPE0
                 val typeStr = part.substring(1, part.length - 1)
                 val type = try { PuzzleValueType.valueOf(typeStr) } catch(e: Exception) { PuzzleValueType.ANY }
                 val index = part.takeLast(1).toIntOrNull() ?: 0
 
                 val socket = InlineSocket(index, type, skin)
                 inlineSockets.add(socket)
-                mainTable.add(socket).pad(5f).padLeft(5f + notchRadius.toFloat())
+                topTable.add(socket).pad(5f).padLeft(5f + notchRadius.toFloat())
             } else if (part.startsWith("#")) {
-                // Input: #TYPE0
                 val typeStr = part.substring(1, part.length - 1)
                 val type = try { PuzzleValueType.valueOf(typeStr) } catch(e: Exception) { PuzzleValueType.STRING }
                 val index = part.takeLast(1).toIntOrNull() ?: 0
@@ -73,11 +77,11 @@ class PuzzlePiece(
                     }
                 })
 
-                mainTable.add(field).width(80f).height(60f).pad(5f)
+                topTable.add(field).width(80f).height(60f).pad(5f)
             } else {
                 val label = Label(part, skin.get("default", Label.LabelStyle::class.java))
                 label.setFontScale(0.4f)
-                mainTable.add(label).pad(5f)
+                topTable.add(label).pad(5f)
             }
         }
 
@@ -97,10 +101,14 @@ class PuzzlePiece(
                     val stagePos = localToStageCoordinates(Vector2(x, y))
                     onDragStart?.invoke(this@PuzzlePiece, stagePos.x, stagePos.y)
                 } else {
-                    // Detach from parent if needed
+                    grabOffset.set(x, y)
                     val p = parent
                     if (p is PuzzlePiece) {
-                        p.nextPiece = null
+                        if (p.nextPiece == this@PuzzlePiece) {
+                            p.nextPiece = null
+                        } else if (p.bodyPiece == this@PuzzlePiece) {
+                            p.bodyPiece = null
+                        }
                         val stagePos = localToStageCoordinates(Vector2(0f, 0f))
                         findWorkspace()?.addPiece(this@PuzzlePiece)
                         setPosition(stagePos.x, stagePos.y)
@@ -122,7 +130,8 @@ class PuzzlePiece(
                     val stagePos = localToStageCoordinates(Vector2(x, y))
                     onDrag?.invoke(stagePos.x, stagePos.y)
                 } else {
-                    moveBy(deltaX, deltaY)
+                    val stagePos = localToStageCoordinates(Vector2(x, y))
+                    setPosition(stagePos.x - grabOffset.x, stagePos.y - grabOffset.y)
                 }
                 event?.stop()
             }
@@ -150,31 +159,62 @@ class PuzzlePiece(
     }
 
     fun refreshLayout() {
-        mainTable.layout()
+        topTable.layout()
         val paddingWidth = 20f
-        val paddingHeight = 40f
-        setSize(mainTable.prefWidth + paddingWidth * 2, mainTable.prefHeight + paddingHeight)
+        val topPartHeight = topTable.prefHeight + 40f
 
-        texture?.dispose()
-        texture = Graphics.createPuzzlePieceTexture(
-            width.toInt(),
-            height.toInt(),
-            cornerRadius,
-            notchRadius,
-            pieceColor,
-            hasTopNotch = pieceType.category == PuzzlePieceCategory.ACTION,
-            hasBottomBump = pieceType.category == PuzzlePieceCategory.ACTION,
-            hasLeftBump = pieceType.category == PuzzlePieceCategory.VALUE
-        )
+        if (pieceType.category == PuzzlePieceCategory.CONTAINER) {
+            val bodyHeight = getChainHeight(bodyPiece) ?: 80f
+            val totalHeight = topPartHeight + bodyHeight + bottomBarHeight
+
+            setSize(topTable.prefWidth + paddingWidth * 2 + spineWidth, totalHeight)
+            topTable.setSize(width - spineWidth, topPartHeight)
+            topTable.setPosition(spineWidth, totalHeight - topPartHeight)
+
+            texture?.dispose()
+            texture = Graphics.createContainerTexture(
+                width.toInt(), height.toInt(), topPartHeight.toInt(), bottomBarHeight.toInt(),
+                spineWidth.toInt(), cornerRadius, notchRadius, pieceColor
+            )
+
+            bodyPiece?.let {
+                it.setPosition(spineWidth, totalHeight - topPartHeight - it.height)
+            }
+        } else {
+            setSize(topTable.prefWidth + paddingWidth * 2, topPartHeight)
+            topTable.setSize(width, topPartHeight)
+            topTable.setPosition(0f, 0f)
+
+            texture?.dispose()
+            texture = Graphics.createPuzzlePieceTexture(
+                width.toInt(), height.toInt(), cornerRadius, notchRadius, pieceColor,
+                hasTopNotch = pieceType.category == PuzzlePieceCategory.ACTION,
+                hasBottomBump = pieceType.category == PuzzlePieceCategory.ACTION,
+                hasLeftBump = pieceType.category == PuzzlePieceCategory.VALUE
+            )
+        }
 
         val p = parent
         if (p is InlineSocket) {
             findParentPiece(p)?.refreshLayout()
+        } else if (p is PuzzlePiece && p.bodyPiece == this) {
+            p.refreshLayout()
         }
 
         nextPiece?.let {
             it.setPosition(0f, -it.height)
         }
+    }
+
+    private fun getChainHeight(start: PuzzlePiece?): Float? {
+        if (start == null) return null
+        var current: PuzzlePiece? = start
+        var total = 0f
+        while (current != null) {
+            total += current.height
+            current = current.nextPiece
+        }
+        return total
     }
 
     private fun checkDeletion(): Boolean {
@@ -187,6 +227,7 @@ class PuzzlePiece(
                     myPos.y >= boxPos.y && myPos.y <= boxPos.y + actor.height
                 ) {
                     nextPiece?.remove()
+                    bodyPiece?.remove()
                     inlineSockets.forEach { it.attachedPiece?.remove() }
                     remove()
                     return true
@@ -207,22 +248,34 @@ class PuzzlePiece(
 
     private fun checkSnapping() {
         val workspace = findWorkspace() ?: return
+        val allPieces = workspace.getAllPieces()
 
-        if (pieceType.category == PuzzlePieceCategory.ACTION) {
+        if (pieceType.category == PuzzlePieceCategory.ACTION || pieceType.category == PuzzlePieceCategory.CONTAINER) {
             val myTopLeft = localToStageCoordinates(Vector2(0f, height))
-            for (actor in workspace.children) {
-                if (actor is PuzzlePiece && actor != this && actor.pieceType.category == PuzzlePieceCategory.ACTION) {
-                    val otherBottomLeft = actor.localToStageCoordinates(Vector2(0f, 0f))
-                    if (myTopLeft.dst(otherBottomLeft) < 30f) {
-                        snapTo(actor)
-                        return
+            for (actor in allPieces) {
+                if (actor != this && !actor.isDescendantOf(this)) {
+                    if (actor.pieceType.category != PuzzlePieceCategory.VALUE && actor.nextPiece == null) {
+                        val otherBottomLeft = actor.localToStageCoordinates(Vector2(0f, 0f))
+                        if (myTopLeft.dst(otherBottomLeft) < 30f) {
+                            snapTo(actor)
+                            return
+                        }
+                    }
+
+                    if (actor.pieceType.category == PuzzlePieceCategory.CONTAINER && actor.bodyPiece == null) {
+                        val topPartHeight = actor.topTable.prefHeight + 40f
+                        val internalTop = actor.localToStageCoordinates(Vector2(spineWidth, actor.height - topPartHeight))
+                        if (myTopLeft.dst(internalTop) < 30f) {
+                            snapToBody(actor)
+                            return
+                        }
                     }
                 }
             }
         } else if (pieceType.category == PuzzlePieceCategory.VALUE) {
             val myCenter = localToStageCoordinates(Vector2(width / 2f, height / 2f))
-            for (actor in workspace.children) {
-                if (actor is PuzzlePiece && actor.pieceType.category == PuzzlePieceCategory.ACTION) {
+            for (actor in allPieces) {
+                if (actor != this && !actor.isDescendantOf(this)) {
                     for (socket in actor.inlineSockets) {
                         if (socket.attachedPiece == null && isTypeCompatible(pieceType.returnType, socket.expectedType)) {
                             val socketCenter = socket.localToStageCoordinates(Vector2(socket.width / 2f, socket.height / 2f))
@@ -248,6 +301,13 @@ class PuzzlePiece(
         parentPiece.nextPiece = this
         setPosition(0f, -height)
         parentPiece.addActor(this)
+        parentPiece.refreshLayout()
+    }
+
+    private fun snapToBody(container: PuzzlePiece) {
+        container.bodyPiece = this
+        container.addActor(this)
+        container.refreshLayout()
     }
 
     private fun snapToSocket(socket: InlineSocket) {
@@ -260,6 +320,7 @@ class PuzzlePiece(
     fun toData(): PuzzlePieceData {
         val data = PuzzlePieceData(pieceType.id, x, y)
         nextPiece?.let { data.next = it.toData() }
+        bodyPiece?.let { data.body = it.toData() }
         for (socket in inlineSockets) {
             socket.attachedPiece?.let {
                 data.internalValues[socket.index] = it.toData()
@@ -278,7 +339,7 @@ class PuzzlePiece(
     override fun draw(batch: Batch?, parentAlpha: Float) {
         texture?.let {
             val offsetX = if (pieceType.category == PuzzlePieceCategory.VALUE) -notchRadius.toFloat() else 0f
-            val offsetY = if (pieceType.category == PuzzlePieceCategory.ACTION) -notchRadius.toFloat() else 0f
+            val offsetY = -notchRadius.toFloat()
             batch?.draw(it, x + offsetX, y + offsetY, it.width.toFloat(), it.height.toFloat())
         }
         super.draw(batch, parentAlpha)
@@ -292,12 +353,10 @@ class PuzzlePiece(
 
     fun generateCode(): String {
         var code = pieceType.luaTemplate
-        // Replace sockets
         for (socket in inlineSockets) {
             val valCode = socket.attachedPiece?.generateCode() ?: getDefaultValueForPlaceholder(socket.expectedType)
             code = code.replace("$" + socket.index, valCode)
         }
-        // Replace inputs
         for ((index, field) in textFields) {
             var valStr = field.text
             if (pieceType.returnType == PuzzleValueType.STRING) {
@@ -306,7 +365,13 @@ class PuzzlePiece(
             code = code.replace("\$$index", valStr)
         }
 
-        if (pieceType.category == PuzzlePieceCategory.ACTION && nextPiece != null) {
+        if (pieceType.category == PuzzlePieceCategory.CONTAINER) {
+            val bodyCode = bodyPiece?.generateCode() ?: ""
+            val indentedBody = bodyCode.split("\n").joinToString("\n") { "    " + it }
+            code = code.replace("\$BODY", indentedBody)
+        }
+
+        if (pieceType.category != PuzzlePieceCategory.VALUE && nextPiece != null) {
             code += "\n" + nextPiece!!.generateCode()
         }
         return code

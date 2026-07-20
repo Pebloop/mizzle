@@ -30,6 +30,8 @@ class GamePlayerScreen(val droplet: DropletData, val actionsExtern: EditorAction
     private val PPM = 100f
     private val scriptEngine = ScriptEngine()
 
+    private val pendingDestruction = mutableListOf<GameEntityInstance>()
+
     init {
         world.setContactListener(object : ContactListener {
             override fun beginContact(contact: Contact) {
@@ -157,6 +159,20 @@ class GamePlayerScreen(val droplet: DropletData, val actionsExtern: EditorAction
             Gdx.input.inputProcessor = stage
         }
 
+        // Handle deferred destruction
+        if (pendingDestruction.isNotEmpty()) {
+            for (instance in pendingDestruction) {
+                instance.remove()
+                bodyMap[instance]?.let {
+                    world.destroyBody(it)
+                }
+                bodyMap.remove(instance)
+            }
+            pendingDestruction.clear()
+        }
+
+        scriptEngine.update(delta)
+
         world.step(delta, 6, 2)
         for ((instance, body) in bodyMap) {
             instance.setPosition(
@@ -203,7 +219,9 @@ class GamePlayerScreen(val droplet: DropletData, val actionsExtern: EditorAction
                     val event = component.getData("action") as? Event
                     if (event != null && event.code != "none") {
                         Gdx.app.log("GamePlayer", "Executing ${type} for ${instance.entity.name}")
-                        scriptEngine.execute(event.code, instance, bodyMap[instance])
+                        scriptEngine.execute(event.code, instance, bodyMap[instance]) {
+                            pendingDestruction.add(instance)
+                        }
                     }
                 }
             }

@@ -89,4 +89,63 @@ object Graphics {
         pixmap.dispose()
         return texture
     }
+
+    fun createContainerTexture(
+        width: Int,
+        height: Int,
+        topHeight: Int,
+        bottomHeight: Int,
+        spineWidth: Int,
+        radius: Int,
+        notchRadius: Int,
+        color: Color
+    ): Texture {
+        val extraHeightTop = notchRadius
+        val extraHeightBottom = notchRadius
+        val pixmap = Pixmap(width, height + extraHeightTop + extraHeightBottom, Pixmap.Format.RGBA8888)
+
+        pixmap.setColor(color)
+        val bodyY = extraHeightTop
+
+        // Draw Top Bar
+        pixmap.fillRectangle(radius, bodyY, width - radius * 2, topHeight)
+        pixmap.fillRectangle(0, bodyY + radius, width, topHeight - radius)
+        pixmap.fillCircle(radius, bodyY + radius, radius)
+        pixmap.fillCircle(width - radius, bodyY + radius, radius)
+
+        // Draw Bottom Bar
+        pixmap.fillRectangle(radius, bodyY + height - bottomHeight, width - radius * 2, bottomHeight)
+        pixmap.fillRectangle(0, bodyY + height - bottomHeight, width, bottomHeight - radius)
+        pixmap.fillCircle(radius, bodyY + height - radius, radius)
+        pixmap.fillCircle(width - radius, bodyY + height - radius, radius)
+
+        // Draw Spine
+        pixmap.fillRectangle(0, bodyY + topHeight - radius, spineWidth, height - topHeight - bottomHeight + radius * 2)
+
+        val notchOffset = radius + notchRadius + 20
+
+        // External Top Notch
+        pixmap.blending = Pixmap.Blending.None
+        pixmap.setColor(0f, 0f, 0f, 0f)
+        pixmap.fillCircle(notchOffset, bodyY, notchRadius)
+        pixmap.blending = Pixmap.Blending.SourceOver
+
+        // External Bottom Bump
+        pixmap.setColor(color)
+        pixmap.fillCircle(notchOffset, bodyY + height, notchRadius)
+
+        // Internal Top Bump (for snapping inside)
+        pixmap.fillCircle(spineWidth + notchOffset, bodyY + topHeight, notchRadius)
+
+        // Internal Bottom Notch (at the bottom of the opening)
+        pixmap.blending = Pixmap.Blending.None
+        pixmap.setColor(0f, 0f, 0f, 0f)
+        pixmap.fillCircle(spineWidth + notchOffset, bodyY + height - bottomHeight, notchRadius)
+        pixmap.blending = Pixmap.Blending.SourceOver
+
+        val texture = Texture(pixmap)
+        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+        pixmap.dispose()
+        return texture
+    }
 }

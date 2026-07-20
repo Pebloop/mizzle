@@ -9,6 +9,23 @@ class Workspace(val skin: EditorSkin) : Group() {
         addActor(piece)
     }
 
+    fun getAllPieces(): List<PuzzlePiece> {
+        val pieces = mutableListOf<PuzzlePiece>()
+        collectPieces(this, pieces)
+        return pieces
+    }
+
+    private fun collectPieces(group: Group, list: MutableList<PuzzlePiece>) {
+        for (actor in group.children) {
+            if (actor is PuzzlePiece) {
+                list.add(actor)
+                collectPieces(actor, list)
+            } else if (actor is Group) {
+                collectPieces(actor, list)
+            }
+        }
+    }
+
     fun generateFullCode(): String {
         val codes = mutableListOf<String>()
         for (actor in children) {
@@ -55,6 +72,13 @@ class Workspace(val skin: EditorSkin) : Group() {
             piece.nextPiece = nextPiece
             nextPiece.setPosition(0f, -nextPiece.height)
             piece.addActor(nextPiece)
+        }
+
+        // Load body piece for containers
+        data.body?.let {
+            val bodyPiece = createPieceFromData(it)
+            piece.bodyPiece = bodyPiece
+            piece.addActor(bodyPiece)
         }
 
         // Load internal argument values
