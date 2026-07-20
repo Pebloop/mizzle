@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:padding="16dp"
+    tools:context=".android.activities.EditorTilesetEditorActivity">
+
+    <TextView
+        android:id="@+id/tileset_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tileset Splitter"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tile_width_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:hint="Tile Width"
+        app:layout_constraintEnd_toStartOf="@+id/tile_height_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tileset_title">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tile_width_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:text="32" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tile_height_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:hint="Tile Height"
+        app:layout_constraintBottom_toBottomOf="@+id/tile_width_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tile_width_layout"
+        app:layout_constraintTop_toTopOf="@+id/tile_width_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tile_height_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:text="32" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/prefix_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Name Prefix"
+        app:layout_constraintTop_toBottomOf="@id/tile_width_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/prefix_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:text="tile_" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/tileset_preview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/split_button"
+        app:layout_constraintTop_toBottomOf="@id/prefix_layout" />
+
+    <Button
+        android:id="@+id/split_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Split Tiles"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
